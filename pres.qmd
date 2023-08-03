@@ -1,0 +1,116 @@
+---
+title: "Computational Methods in Epidemic Simulation and Inference"
+subtitle: "Not-So-Great Models in Complex Situations"
+author: David Wu
+date: 17 August 2023
+institute: Monash University NUMBATS Seminar
+format: 
+    revealjs:
+        theme: [simple, style.scss]
+        slide-number: true
+        show-slide-number: all
+---
+
+## Overview
+
+- About Me
+- Fitting ODE models
+- COVID-19 and the Big Network Model
+- Cheating with Surrogates
+
+## About Me
+
+
+
+![I use Python](img/python.jpeg)
+
+![Undergrad and PhD at the Department of Engineering Science at the University of Auckland in New Zealand](img/uoa-v-colour2.png)  
+
+
+
+# Section 1: Fitting ODE Models
+
+## Mechanistic Models for Infectious Diseases
+
+We have some idea of how infectious diseases spread.
+
+We can write (approximations of) them down mathematically.
+
+A nice way is with ordinary differential equations:
+
+$$\begin{gathered}
+S_t = -\beta \frac{SI}{N}\\
+I_t = \beta \frac{SI}{N} - \gamma I\\
+R_t = \gamma I
+\end{gathered}
+$$
+
+
+## Solving ODE Models
+
+In general, we can write down a system of ODEs for the state $\vec{x}$ of the system with respect to some model parameters $\vec{\theta}$.
+
+$$\vec{x}_t = \underbrace{f(\vec{x}, \vec{\theta})}_{RHS}$$
+
+And we typically have to numerically integrate these systems in order to recover the state $\vec{x}$.
+
+e.g. Euler's method
+$$\vec{x}(t + \delta t) = \vec{x}(t) + f(\vec{x}(t), \vec{\theta}) \delta t$$
+
+## Fitting ODEs: General Setup
+
+Typically we will have some data $y(t)$ that we want to do two things with:
+
+1. Predict $y(t + \Delta t)$, and
+2. Understand underlying mechanisms, as abstracted by model parameters $\theta$.
+
+And we have the setup:
+
+$$\begin{gathered}
+y = g(x) + \overbrace{\varepsilon}^{\text{error}}\\
+x_t = f(x, \theta)
+\end{gathered}$$
+
+
+
+
+# Section 2: COVID-19 and the Big Network Model
+
+
+# Section 3: Cheating with Surrogates
+
+## Sales Pitch
+
+Complex models are expensive to simulate, and thus expesive to infer.
+
+Simple models are bad at capturing all the mechanisms.
+
+We can get the <span style="color:#a161d9">b</span><span style="color:#F0DA16">e</span><span style="color:#a161d9">s</span><span style="color:#F0DA16">t </span><span style="color:#a161d9">o</span><span style="color:#F0DA16">f </span><span style="color:#a161d9">b</span><span style="color:#F0DA16">o</span><span style="color:#a161d9">t</span><span style="color:#F0DA16">h </span><span style="color:#a161d9">w</span><span style="color:#F0DA16">o</span><span style="color:#a161d9">r</span><span style="color:#F0DA16">l</span><span style="color:#a161d9">d</span><span style="color:#F0DA16">s</span> by using the simple model as a surrogate for the more complex model, and correcting the difference.
+
+## How
+
+Complex model: 
+$$x(t) = \zeta(t; \theta, \eta)$$
+
+Simple model: $$x(t) = s(t; \theta)$$
+
+Correction term: $$C(t; \theta, \eta) = \zeta(t; \theta, \eta) - s(t;\theta)$$
+
+too hard
+
+## How
+Complex model: 
+$$x(t) = \zeta(t; \theta, \eta)$$
+
+Simple model: $$x(t) = s(t; \theta)$$
+
+# The Bit Where You Clock Back In
+
+## Thanks
+
+
+
+## Questions? {.standout}
+
+
+
