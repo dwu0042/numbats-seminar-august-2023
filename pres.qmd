@@ -71,10 +71,50 @@ y = g(x) + \overbrace{\varepsilon}^{\text{error}}\\
 x_t = f(x, \theta)
 \end{gathered}$$
 
+## Problems
 
+1. Numerical integration can be expensive.
+
+2. Our model can be inadequate.
+
+
+## Generalised Profiling
+
+
+## UQ: Profile Likelihood and Bootstrapping
+
+
+## Case Study: Measles in Samoa 2019
+
+
+
+## 
 
 
 # Section 2: COVID-19 and the Big Network Model
+
+## Motivation(s)
+
+ODE models aren't great for capturing complex processes and populations.
+
+We want to be able to simulate more detailed, stochastic models of the spread of infection in order to understand potential government policies
+
+## The Network
+
+
+
+## Problems
+
+The network is _big_. We have ~5 million individuals, and ~10 million contexts in which they can spread.
+
+Simulating this number of agents is relatively expensive.
+
+Also, many processes are non-Markovian.
+
+## Existing Approaches
+
+Gillespie (direct method) for (multiple) Markovian processes.
+
 
 
 # Section 3: Cheating with Surrogates
@@ -105,6 +145,10 @@ $$x(t) = \zeta(t; \theta, \eta)$$
 Simple model: $$x(t) = s(t; \theta)$$
 
 # The Bit Where You Clock Back In
+
+## Takeaways
+
+
 
 ## Thanks
 
