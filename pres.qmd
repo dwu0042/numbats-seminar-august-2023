@@ -98,8 +98,6 @@ Typically we want to do two things:
 2. Understand underlying mechanisms, as abstracted by model parameters $\theta$.
 :::
 
-
-
 ## Problems
 
 ::: {.incremental}
@@ -122,8 +120,6 @@ Typically we want to do two things:
 
 
 
-## 
-
 
 # Section 2: COVID-19 and the Big Network Model
 
@@ -139,11 +135,11 @@ We want to be able to simulate more detailed, stochastic models of the spread of
 
 ## Problems
 
-The network is _big_. We have ~5 million individuals, and ~10 million contexts in which they can spread.
+1. The network is _big_. We have ~5 million individuals, and ~10 million contexts in which they can spread.
+    Simulating this number of agents is relatively expensive.
 
-Simulating this number of agents is relatively expensive.
-
-Also, many processes are non-Markovian.
+2. Also, many processes are non-Markovian.
+    This means that certain simplifications are invalid, or expensive to generalise.
 
 ## Existing Approaches
 
