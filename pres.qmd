@@ -9,6 +9,10 @@ format:
         theme: [simple, style.scss]
         slide-number: true
         show-slide-number: all
+        html-math-method: mathjax
+        include-in-header: mathjax1.html
+        mermaid:
+            theme: default
 ---
 
 ## Overview
@@ -20,15 +24,32 @@ format:
 
 ## About Me
 
+<!-- 
+::: {layout-ncol=3 .v-center-container .incremental .center}
+![](img/python.jpeg){ #vcenter }
 
+::: {.fragment}
+![](img/uoa-v-colour2.png){ #vcenter }
+:::
 
-![I use Python](img/python.jpeg)
+::: {.fragment}
+[![](img/virus.jpg){ #vcenter }](https://www.sysmex-europe.com/fileadmin/_processed_/f/c/csm_Infection_disease_8f4b6cfecd.jpg)
+:::
 
-![Undergrad and PhD at the Department of Engineering Science at the University of Auckland in New Zealand](img/uoa-v-colour2.png)  
-
+::: -->
 
 
 # Section 1: Fitting ODE Models
+
+## Mechanistic Models for Infectious Diseases
+
+We have some idea of how infectious diseases spread.
+
+We can write (approximations of) them down mathematically.
+
+A nice way is with ordinary differential equations:
+
+![](img/sir_diagram.png)
 
 ## Mechanistic Models for Infectious Diseases
 
@@ -46,37 +67,50 @@ R_t = \gamma I
 $$
 
 
-## Solving ODE Models
+## Solving ODE Models {.smaller}
 
 In general, we can write down a system of ODEs for the state $\vec{x}$ of the system with respect to some model parameters $\vec{\theta}$.
 
-$$\vec{x}_t = \underbrace{f(\vec{x}, \vec{\theta})}_{RHS}$$
+$$\vec{x}_t = \underbracket{f\left(\vec{x}, \vec{\theta}\right)}_{RHS}$$
+
+. . . 
 
 And we typically have to numerically integrate these systems in order to recover the state $\vec{x}$.
 
 e.g. Euler's method
-$$\vec{x}(t + \delta t) = \vec{x}(t) + f(\vec{x}(t), \vec{\theta}) \delta t$$
+$$\vec{x}(t + \delta t) = \vec{x}(t) + f\left(\vec{x}(t), \vec{\theta}\right) \cdot \delta t$$
 
-## Fitting ODEs: General Setup
+## Fitting ODEs: Objective and Setup
 
-Typically we will have some data $y(t)$ that we want to do two things with:
-
-1. Predict $y(t + \Delta t)$, and
-2. Understand underlying mechanisms, as abstracted by model parameters $\theta$.
-
-And we have the setup:
+We typically have the setup:
 
 $$\begin{gathered}
-y = g(x) + \overbrace{\varepsilon}^{\text{error}}\\
+\overbracket{y}^{\mathclap{\text{data}}} = \overbracket{g(x)}^{\mathclap{\substack{\text{observation}\\\text{process}}}} + \overbracket{\,\mathsf{\varepsilon}\,}^{\mathclap{\text{error}}}\\
 x_t = f(x, \theta)
 \end{gathered}$$
 
+. . .
+
+Typically we want to do two things:
+
+::: {.incremental}
+1. Predict $x(t)$ or $y(t)$ into the future, and
+2. Understand underlying mechanisms, as abstracted by model parameters $\theta$.
+:::
+
+
+
 ## Problems
 
-1. Numerical integration can be expensive.
+::: {.incremental}
 
-2. Our model can be inadequate.
+(@) Numerical integration can be expensive.
 
+
+
+(@) Our model can be inadequate.
+
+:::
 
 ## Generalised Profiling
 
