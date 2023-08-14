@@ -1,0 +1,592 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !BIB program = biber
+
+\documentclass[aspectratio=169]{beamer}
+\usepackage[style=authoryear-icomp, mincitenames=1, maxcitenames=2, url=false, backend=biber]{biblatex}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{textgreek}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{appendixnumberbeamer}
+\usepackage{pgfpages}
+\usepackage{xpatch}
+\usepackage{tabularx}
+
+\usepackage{gfsneohellenicot}
+
+% \usepackage{cmbright}
+% \usepackage[OT1]{fontenc}
+
+\usetheme{metropolis}
+\usepackage{fontspec}
+\usepackage[sfdefault]{atkinson}
+% \setsansfont[BoldFont={Atkinson Hyperlegible}]{Atkinson Hyperlegible}
+
+%--------------------------------
+% DRAFTING AND SLIDE CONSTRUCTION
+%--------------------------------
+% \pgfpagesuselayout{4 on 1}
+\setbeameroption{hide notes}
+% \setbeameroption{show only notes}
+% \setbeameroption{show notes on second screen=right}
+
+%-------------------------
+% PATCHING & CUSTOMISATION
+%-------------------------
+
+\definecolor{UOABlue}{HTML}{00457D}
+\definecolor{EngPurple}{HTML}{4F2D7F}
+\definecolor{Mustard}{HTML}{906E01}
+\setbeamercolor{frametitle}{bg=UOABlue}
+\setbeamercolor{palette primary}{bg=UOABlue}
+\setbeamercolor{progress bar}{fg=orange}
+\metroset{titleformat=smallcaps}
+\metroset{sectionpage=simple}
+\metroset{progressbar=frametitle}
+
+% \makeatletter
+% \setlength{\metropolis@progressinheadfoot@textwidth}{2pt}
+% \makeatother
+
+\renewcommand*{\footnotesize}{\tiny}
+\renewcommand*{\bibfont}{\scriptsize}
+\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
+
+\newcommand{\norm}[2][2]{\left\lVert #2 \right\rVert_{#1}}
+\newcommand{\twraps}[2][2cm]{\text{\parbox{#1}{\centering #2}}}
+\newcommand{\tPhi}{\text{\textbf{\textPhi}}}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\xapptobibmacro{cite}{\setunit{\nametitledelim}\printfield{title}}{}{}
+
+\DeclareSymbolFont{pazosymbols}{OMS}{zplm}{m}{n}
+\makeatletter
+\ExplSyntaxOn %define \xmapsto
+\DeclareMathSymbol \c_pazo_minus \mathbin { pazosymbols } 0
+\DeclareMathSymbol \c_pazo_mapstochar \mathrel { pazosymbols } { "37 }
+\DeclareMathSymbol \c_pazo_rightarrow \mathrel { pazosymbols } { "21 }
+\cs_new_protected_nopar:Nn \pazo_relbar: {
+  \mathrel {
+    \mathpalette \mathsm@sh \c_pazo_minus
+  }
+}
+\cs_set_protected_nopar:Nn \MT_mapsto_fill: {
+  \arrowfill@ { \c_pazo_mapstochar \pazo_relbar: } \pazo_relbar: \c_pazo_rightarrow
+}
+\ExplSyntaxOff
+\makeatother
+
+\newenvironment{popupbox}[1]%
+{%
+    \metroset{block=fill}%
+    \begin{textblock*}{0.9\textwidth}(0.1\textwidth,0.15\textheight)%
+        \begin{alertblock}{#1}%
+}%
+{       \end{alertblock}%
+    \end{textblock*}%
+}%
+
+
+% \metroset{numbering=none}
+
+%--------------
+% DOCUMENT INFO
+%--------------
+
+\title[]{Computational Methods in Epidemic Simulation and Inference}
+\subtitle{Not-So-Great Models in Complex Situations}
+\author{David Wu}
+\date{17 August 2023}
+% \titlegraphic{\vspace{4.5cm}\flushright\includegraphics[width=2cm,height=2cm]{exam_resource/uoa-v-colour2.png}} 
+% \addbibresource{biblio.bib}
+% \addbibresource{biblio_samoa.bib}
+% \addbibresource{covid_reports.bib}
+% \addbibresource{covid_others.bib}
+
+
+
+\begin{document}
+
+\frame[plain,noframenumbering]{\titlepage}
+
+
+\begin{frame}
+  \frametitle{About Me}
+  % \begin{columns}
+  %   \begin{column}{0.33\textwidth}
+  %     \centering
+  %     \includegraphics[width=0.5\textwidth]{img/uoa-v-colour2.png}
+
+  %     PhD from Dept. Engineering Science at the University of Auckland in New Zealand
+  %   \end{column}
+  %   \begin{column}{0.33\textwidth}
+  %     \centering
+  %     \includegraphics[width=0.5\textwidth]{img/python.jpeg}
+
+  %     Primarily use Python tooling
+  %   \end{column}
+  %   \begin{column}{0.33\textwidth}
+  %     \centering
+  %     \includegraphics[width=0.5\textwidth]{img/virus.jpg}
+
+  %     Research is in the field of infectious diseases
+  %   \end{column}
+  % \end{columns}
+  \centering
+  \begin{tabular}{m{0.3\textwidth} m{0.3\textwidth} m{0.3\textwidth}}
+    \begin{center}\includegraphics[width=0.2\textwidth]{img/uoa-v-colour2.png}\end{center}%
+    &\begin{center}\includegraphics[width=0.2\textwidth]{img/python.jpeg}\end{center}%
+    &\begin{center}\includegraphics[width=0.2\textwidth]{img/virus.jpg}\end{center}\\%
+    \begin{center}{\scriptsize PhD from Dept. Engineering Science at the University of Auckland in New Zealand}\end{center}
+    &\begin{center}{\scriptsize Primarily use Python tooling}\end{center}
+    &\begin{center}{\scriptsize Research is in the field of infectious diseases}\end{center}
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview}
+  \begin{enumerate}
+    \item \hyperlink{fitting-ode}{Fitting ODE models with generalised profiling}
+    \item \hyperlink{network-sim}{Simulating stochastic models on networks (maybe skip)}
+    \item \hyperlink{surrogates}{Surrogate modelling techniques for inference}
+  \end{enumerate}
+\end{frame}
+
+\section{Fitting ODE Models}\label{fitting-ode}
+
+% \begin{frame}
+%   \frametitle{Fitting ODEs: Summary}
+
+%   Objective: Robustly fit a deterministic ODE model to epidemic data.
+  
+%   Challenges: 
+%   \begin{itemize}
+%     \item Trajectory matching can be expensive, and we want to deal with that problem.
+%     \item When the model is only partially observed, we run into issues with identifiability.
+%   \end{itemize}
+
+%   Contributions:
+%   \begin{itemize}
+%     \item Novel interpretation of existing method in a likelihood-based formulation that allows for natural interpretation and uncertainty quantification in parameters and state.
+%     \item Analysis and forecasting of a measles outbreak in Samoa.
+%   \end{itemize}
+% \end{frame}
+
+\begin{frame}
+
+  \frametitle{ODE Models}
+  \only<1>{
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/sir_diagram.png}
+  }
+  \only<2>{
+    \begin{equation*}
+      \begin{aligned}
+        \frac{dS}{dt} &= -\beta \frac{SI}{N},\\
+        \frac{dI}{dt} &= \beta \frac{SI}{N} - \alpha I,\\
+        \frac{dR}{dt} &= \alpha I.
+      \end{aligned}
+    \end{equation*}
+  }
+  \only<3>{
+    \begin{equation*}
+      \frac{d}{dt}\begin{bmatrix}
+        S\\I\\R
+      \end{bmatrix} = \begin{bmatrix}
+        -\beta\frac{SI}{N}\\
+        \beta\frac{SI}{N} - \alpha I\\
+        \alpha I
+      \end{bmatrix}.
+    \end{equation*}
+  }
+  \only<4>{
+    \begin{equation*}
+      \begin{gathered}
+        \frac{d}{dt}(x) = \overbrace{f(x; \theta)}^{\text{RHS}}\\
+        x = \begin{bmatrix}
+          S & I & R
+        \end{bmatrix}^T\\
+        \theta = \begin{bmatrix}
+          \beta & \alpha
+        \end{bmatrix}^T\\
+      \end{gathered}
+    \end{equation*}
+  }
+
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Solving ODE Models}
+
+  Euler's Method:
+  \begin{itemize}
+    \item $\frac{dx}{dt} \approx \frac{x(t+\Delta t) - x(t)}{\Delta t}$
+    
+    \item $x(t + \Delta t) = x(t) + (\Delta t) f(x(t); \theta)$
+  \end{itemize}
+  \only<2>{
+    \centering
+    \includegraphics[height=0.7\textheight]{img/euler_method.png}
+  }
+  \only<3>{
+  There are methods with higher-order accuracy (wrt $\Delta t$) that require evaluation of $f$ at multiple $t$.
+
+  Adaptive methods exist that take smaller steps in regions of time where the behaviour is "faster" than expected, in order to improve accuracy.
+
+  These methods can be very slow in particular regions of parameter space. (*Problem 1)
+  }
+\end{frame}
+
+
+\begin{frame}[t]
+  \frametitle{Fitting ODEs}
+
+  We have some data $y$, and we want to fit an ODE model to it: find $\theta$ that would likely reconstruct $y$.
+
+  We typically work with a simple additive error model:
+
+  \begin{equation*}
+    \begin{gathered}
+      y(t) = \overbrace{g(x(t))}^{\mathclap{\text{observation model}}} + \varepsilon,\\
+      \frac{d}{dt} x(t) = f(x(t); \theta),\\
+      \varepsilon \sim \mathcal{N}(0, \Gamma).
+    \end{gathered}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Fitting ODEs: Classical Methods}
+  Non-linear Least Squares (frequentist)
+
+  \begin{equation*}
+    \min_{\theta, x(0)}  \left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right)  \right\rVert^2_2
+  \end{equation*}
+  \pause
+
+  Bayesian Analogue
+
+  \begin{equation*}
+    p(\theta, x_0 | y) = \underbrace{\left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right) \right\rVert^2_{\Gamma^{-1}}}_{\text{likelihood: } \cdot p(y|\theta, x_0)} \;\cdot \;p(\theta, x_0)
+  \end{equation*}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problems}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1ex}
+    \item Numerical integration can be slow.
+    \item Solving the ODE implicitly assumes that the model is correct.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Partial Solution: Collocation on Splines}
+
+  Instead of integrating the ODE, getting a state, and then comparing against the data, we could go backwards.
+  
+  We could get a proposal for a vector field from the data*, then compare the vector field with the RHS of the ODE.
+  % To get the proposal, we will fit a smooth (differentiable) function to the data: a spline. 
+
+
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{Fitting ODEs: Methods}
+  
+%   Generalised profiling (parameter cascading) in the likelihood framework.
+%   \vspace{2em}
+
+%   \only<1>{
+%     Classical Generalised Profiling
+
+%     Inner:
+%     \begin{equation}
+%       \hat{c}(\theta) = \min_c \norm{y - G(\Phi{c})}^2 + \lambda \norm{\mathcal{D}(\Phi{c}) - f(\Phi{c}, \theta)}^2
+%     \end{equation}
+%     Outer:
+%     \begin{equation}
+%       \hat\theta = \min_\theta \norm{y - G(\Phi\hat{c}(\theta))}^2.
+%     \end{equation}
+%   }
+
+%   \only<2>{
+%     Likelihood-based Interpretation
+
+%     \begin{equation}
+%       \hat\theta, \hat{c} = \min_{\theta, c} \log\mathcal{L}(\theta, c) = \norm[\Gamma^{-1}]{y - G(\Phi{c})}^2 + \norm[\widehat{\Sigma^{-1}}]{\mathcal{D}(\Phi{c}) - f(\Phi{c},\theta)}^2
+%     \end{equation}
+%   }
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Fitting ODEs: Methods}
+%   Uncertainty Quantification
+
+%   \begin{enumerate}
+%     \item Likelihood Profiling
+%     \item Bootstrapping with Randomised Maximum Likelihood
+%   \end{enumerate}
+% \end{frame}
+
+
+%%%%%%-------------------------------
+
+\begin{frame}
+  \frametitle{Fitting ODEs: Measles in Samoa}
+\centering
+  \vspace{0.25em}
+  % \includegraphics[height=0.75\textheight]{exam_resource/samoa_data.pdf}
+
+  \vspace{-0.25em}
+  {\tiny \linespread{0}Plots of the available data for the 2019 Samoan measles outbreak (current hospitalisations and cumulative discharges available, but not shown). Top-left: cumulative reported cases; top-right: cumulative reported deaths; bottom-left: report incidence (daily rate of new cases since last report); bottom-right: cumulative reported hospitalisations.\\}
+
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{Fitting ODEs: Measles in Samoa}
+%   \centering
+%   \includegraphics[height=0.85\textheight]{exam_resource/seirh.png}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Fitting ODEs: Measles in Samoa}
+%   \centering
+%   Maximum Likelihood Estimates
+
+%   \includegraphics[width=0.45\textwidth]{img/37_samoa/big_state.pdf}
+%   \includegraphics[width=0.45\textwidth]{img/37_samoa/smol_state.pdf}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Fitting ODEs: Measles in Samoa}
+%   \centering
+%   \includegraphics[height=0.85\textheight]{img/37_samoa/bivariate_profile.pdf}
+% \end{frame}
+
+% \section{Network Models}\label{network-sim}
+
+% \begin{frame}
+%   \frametitle{Network Models: Summary}
+
+%   Objective: Incorporate heterogeneity and stochasticity into an epidemic model through a contact network, and do it at scale. Strongly driven by modelling COVID-19 in New Zealand.
+
+%   Challenges:
+%   \begin{itemize}
+%     \item Large number of individuals and possible reactions -- algorithms run into memory or computational limitations
+%   \end{itemize}
+
+%   Contributions:
+%   \begin{itemize}
+%     \item Novel extensions to the Gillespie algorithm to allow for efficient simulation using a rejection-based method.
+%     \item Numerous applications of the model for scenario modelling of COVID-19 in New Zealand.
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+%   \centering
+%   \frametitle{Network Models: COVID-19 in NZ}
+
+%   \includegraphics[width=0.8\textwidth]{tikz/covid_timeline_nz}
+
+%   \includegraphics[height=0.6\textheight]{exam_resource/cases_nz_stats_nz}
+
+% \vspace{-1em}
+%   {\tiny
+%     Count of active cases, recovered individuals and deceased individuals due to COVID-19 in NZ (Source: Stats NZ)}
+% \end{frame}
+
+
+% \begin{frame}
+%   \frametitle{Network Models: The Network}
+%   \centering
+%   Bipartite Networks: Explicitly modelling contexts of infection
+
+%   \includegraphics[height=0.7\textheight]{img/40_covid/contact-multiple}
+
+%   \hfill {\small *work of others in the Network Contagion Team}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Network Models: The Model (roughly)}
+%   \centering
+
+%   \includegraphics[height=0.8\textheight]{exam_resource/transmission_diagram_big_no_distancing.pdf}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Network Models: Methods}
+%   % \centering
+%   Computational Bottlenecks and Complications:
+%   \begin{enumerate}[<+->]
+%     \item Updating rates of neighbours upon becoming infected (exposed)
+%     \item Separation of probability of (ever) firing and rate of firing
+%     \item Non-Markovian inter-event/waiting times
+%   \end{enumerate}
+
+%   Solution: Rejection-based sampling
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Network Models: Methods}
+%   Example: Updating rates%
+
+%   \only<3->{Instead}%
+
+%   \begin{center}%
+%     \includegraphics<1>[height=0.7\textheight]{exam_resource/rej/inf2sus_1}%
+%     \includegraphics<2>[height=0.7\textheight]{exam_resource/rej/inf2sus_2}%
+%     \includegraphics<3>[height=0.7\textheight]{exam_resource/rej/rej_1}%
+%     \includegraphics<4>[height=0.7\textheight]{exam_resource/rej/rej_2}%
+
+%     \vspace{-1em}
+%     \only<2>{All nodes must update rates}%
+%     \only<3>{Only the infected updates}%
+%     \only<4>{Upon an infection event firing, randomly sample and perform acceptance check}%
+%   \end{center}%
+
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Network Models: Methods}
+%   Non-Markovian inter-event times
+
+%   \centering
+%   \includegraphics[height=0.8\textheight]{img/40_covid/gamma_bounded.pdf}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Network Models: Results}
+%   November 2020 unknown case analysis
+
+%   \centering
+%   \includegraphics[height=0.7\textheight]{exam_resource/nov_2020_outbreak.png}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Network Models: Results}
+%   End of August 2021 (Delta) outbreak: AL4 (left) vs AL3 (right)
+
+%   \centering
+%   \includegraphics[width=0.475\textwidth]{img/40_covid/results/gp_condition/9_sept_al4.png}
+%   \includegraphics[width=0.475\textwidth]{img/40_covid/results/gp_condition/9_sept_al3pess.png}
+
+%   \hfill{\small *uncertainty quantification done by others in the Network Contagion Team}
+% \end{frame}
+
+% \section{Surrogate Models for Inference}\label{surrogates}
+
+% \begin{frame}
+%   \frametitle{Surrogate Modelling}
+  
+%   Objective: Enable inference of parameters of a complex (network-based) model using a surrogate ODE model.
+
+%   Challenges:
+%   \begin{itemize}
+%     \item Likelihoods for a stochastic network model are intractable; likelihood-free methods are far too expensive for response planning of outbreaks.
+%   \end{itemize}
+
+%   Contribution:
+%   \begin{itemize}
+%     \item Proof-of-concept study on a simple SIR model.
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Surrogate Modelling: Methods}
+%   \centering
+%   \includegraphics<1>[height=0.7\textheight]{exam_resource/Z_S_C}
+%   \includegraphics<2>[height=0.7\textheight]{exam_resource/Z_S_E}
+
+%   \only<2>{where $e$ is a multivariate Gaussian}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Surrogate Modelling: Methods}
+
+%   $\zeta(\theta, \eta) \approx s(\theta) + e(\theta, \eta)$
+
+%   $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Sigma(\theta, \eta))$
+
+%   To estimate $e$:
+%   \begin{enumerate}
+%   \item Generate realisations of $\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
+
+%   \item Compute $E = \{\zeta(\theta_1, \eta_1) - s(\theta_1), \dots\}$
+
+%   \item Take statistics of $E$: 
+%   \begin{itemize}
+%     \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
+%     \item $\Sigma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
+%   \end{itemize}
+%   \end{enumerate}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Surrogate Modelling: Proof of Concept}
+%   Approximate a stochastic network SIR model with an SIR ODE:
+%   \centering
+
+%   \includegraphics[height=0.85\textheight]{img/50_surrogate/runrunvar.pdf}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Surrogate Modelling: Proof of Concept}
+
+%   The Curve Registration Problem
+
+%   \centering
+%   $\text{Stoch}(t; \theta, \eta) \approx \text{ODE}(t {\color{red}- \tau}; \theta) + e(\mu, \Sigma)$
+
+%   \includegraphics<1>[height=0.8\textheight]{img/50_surrogate/runrunvar.pdf}
+%   \includegraphics<2>[height=0.8\textheight]{img/50_surrogate/k100_state_figure_510}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Surrogate Modelling: Proof of Concept}
+%   A rough linear relationship on log-log between transmission parameter and $\tau$
+
+%   \centering
+%   \includegraphics[height=0.85\textheight]{img/50_surrogate/linear_linear_relationship_k}
+% \end{frame}
+
+% \begin{frame}{Surrogate Modelling: Proof of Concept}
+
+%   \centering
+%   \includegraphics[height=0.85\textheight]{img/50_surrogate/surrogate_r0rec_profile}
+% \end{frame}
+
+% \section{Summary}
+
+% \begin{frame}
+%   \frametitle{Summary}
+%   \begin{enumerate}
+%     \item \hyperlink{fitting-ode}{Fitting ODE models with generalised profiling}
+%     \item \hyperlink{network-sim}{Simulating stochastic models on networks}
+%     \item \hyperlink{surrogates}{Surrogate modelling techniques for inference}
+%   \end{enumerate}
+% \end{frame}
+
+% \begin{frame}{Thanks}
+%   \begin{columns}
+%     \begin{column}{0.45\textwidth}
+%       \includegraphics[width=\textwidth]{exam_resource/Screenshot from 2023-04-12 16-14-37.png}
+%     \end{column}
+%     \begin{column}{0.45\textwidth}
+%       \includegraphics[width=\textwidth]{exam_resource/XbYFITdo.jpeg}
+%     \end{column}
+    
+%   \end{columns}
+
+% \end{frame}
+
+\begin{frame}[standout]
+  \centering
+\end{frame}
+% 
+\end{document}
