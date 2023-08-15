@@ -65,6 +65,7 @@
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\Exp}{Exp}
 
 \xapptobibmacro{cite}{\setunit{\nametitledelim}\printfield{title}}{}{}
 
@@ -169,7 +170,7 @@
 
   We assume that there is some underlying state $x$ that we observe to get the data.
 
-  We have some model $\mathcal{M}$ of this underlying state that depends on parameters $\theta$.
+  We have some $\underbrace{\text{mechanistic model }}_{\text{ODE model}} \mathcal{M}$ of how $x$ evolves over time that depends on parameters $\theta$.
 
   \pause
 
@@ -211,7 +212,7 @@
       \end{bmatrix}.
     \end{equation*}
   }
-  \only<4>{
+  \only<4->{
     \begin{equation*}
       \begin{gathered}
         \frac{d}{dt}(x) = \overbrace{f(x; \theta)}^{\text{RHS}}\\
@@ -224,28 +225,27 @@
       \end{gathered}
     \end{equation*}
   }
-
 \end{frame}
 
 \begin{frame}[t]
   \frametitle{Solving ODE Models}
 
-  Euler's Method:
+  Numerical integration (Euler's Method):
   \begin{itemize}
     \item $\frac{dx}{dt} \approx \frac{x(t+\Delta t) - x(t)}{\Delta t}$
     
-    \item $x(t + \Delta t) = x(t) + (\Delta t) f(x(t); \theta)$
+    \item $x(t + \Delta t) = x(t) + \Delta t\, f(x(t); \theta)$
   \end{itemize}
   \only<2>{
     \centering
-    \includegraphics[height=0.7\textheight]{img/euler_method.png}
+    \animategraphics[autoplay,loop,height=0.65\textheight]{2}{img/euler/step_}{1}{20}
   }
   \only<3>{
   There are methods with higher-order accuracy (wrt $\Delta t$) that require evaluation of $f$ at multiple $t$.
 
   Adaptive methods exist that take smaller steps in regions of time where the behaviour is "faster" than expected, in order to improve accuracy.
 
-  These methods can be very slow in particular regions of parameter space. (*Problem 1)
+  These methods can be very slow in particular regions of parameter space.
   }
 \end{frame}
 
@@ -382,14 +382,53 @@
     \hat{c}(\theta) = \argmin_c \left\{ \lVert y - \Phi c \rVert^2 + \lambda \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2 \right\}
   \end{gathered}\end{equation*}
 
+  The objective function for the optimisation of $\theta$ seems a bit arbitrary\dots
+
 \end{frame}
 
 \begin{frame}
   \frametitle{A Likelihood-based Interpretation}
-  
+
+  We can instead derive the loss function by writing out the likelihood, assuming that the underlying ODE is actually represented as an SDE (stochastic differential equation):
+
+  \begin{equation*}
+    \begin{aligned}
+      y \sim& g(x) + \overbrace{\mathcal{N}(0, \Gamma)}^{\varepsilon}\\
+      dx \sim& f(x; \theta) dt + dW_t\\
+      W_{t + \Delta t} - W_{t} \sim& \underbrace{\mathcal{N}(0, \Sigma \Delta t)}_{\nu}
+    \end{aligned}
+  \end{equation*}
+
+  \only<2>{
+  which after some manipulation will lead to 
+
+  \begin{equation*}
+    -2\log\mathcal{L}(c, \theta | y) = \left\{ \lVert y - \Phi c \rVert^2_{\Gamma^{-1}} + \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2_{(\Sigma \Delta t)^{-1}} \right\}
+  \end{equation*}
+  }
+
+  \only<3>{
+  and yields the maximum likelihood estimates $\hat{\theta}, \hat{c}$
+
+  \begin{equation*}
+    \hat{\theta}, \hat{c} = \argmin_{\theta, c} \left\{ \lVert y - \Phi c \rVert^2_{\Gamma^{-1}} + \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2_{(\Sigma \Delta t)^{-1}} \right\}
+  \end{equation*}
+  }
 
 \end{frame}
 
+\begin{frame}[t]
+  \frametitle{A Likelihood-based Interpretation}
+  Why is this useful?
+
+  \begin{enumerate}
+    \setlength{\itemsep}{2ex}
+    \item Placing it in this framework gives an interpretation of the method: the underlying mechanistic model is an SDE.
+    \item We can naturally employ likelihood-based techniques to perform uncertainty quantification with respect to both the model parameters $\theta$, and the underlying state $x = \Phi c$.
+    \item In theory*, we get the hyperparameter $\lambda$ ``for free'', since we can estimate the covariances $\Gamma, \Sigma$. 
+  \end{enumerate}
+
+\end{frame}
 
 \begin{frame}
   \frametitle{Implementation}
@@ -407,7 +446,8 @@
 
 \begin{frame}
   \frametitle{A Case Study}
-
+  \begin{columns}
+  \begin{column}{0.6\textwidth}
   Measles epidemic in Samoa (Sept 2019 -- Jan 2020)
 
   \begin{itemize}
@@ -418,7 +458,13 @@
       \item 28\% second dose of vaccine 
     \end{itemize}
   \end{itemize}
-  
+\end{column}
+\begin{column}{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{img/samoa_globe.png}
+  {\tiny \url{https://upload.wikimedia.org/wikipedia/commons/7/74/Samoa_on_the_globe_\%28Polynesia_centered\%29.svg}}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -455,22 +501,6 @@
 
 \section{Network Models}\label{network-sim}
 
-% \begin{frame}
-%   \frametitle{Network Models: Summary}
-
-%   Objective: Incorporate heterogeneity and stochasticity into an epidemic model through a contact network, and do it at scale. Strongly driven by modelling COVID-19 in New Zealand.
-
-%   Challenges:
-%   \begin{itemize}
-%     \item Large number of individuals and possible reactions -- algorithms run into memory or computational limitations
-%   \end{itemize}
-
-%   Contributions:
-%   \begin{itemize}
-%     \item Novel extensions to the Gillespie algorithm to allow for efficient simulation using a rejection-based method.
-%     \item Numerous applications of the model for scenario modelling of COVID-19 in New Zealand.
-%   \end{itemize}
-% \end{frame}
 
 % \begin{frame}
 %   \centering
@@ -485,6 +515,18 @@
 %     Count of active cases, recovered individuals and deceased individuals due to COVID-19 in NZ (Source: Stats NZ)}
 % \end{frame}
 
+\begin{frame}
+  \frametitle{COVID was a thing that happened}
+
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Network Models: Objectives and Context}
+  
+
+
+\end{frame}
 
 \begin{frame}
   \frametitle{Network Models: The Network}
@@ -504,23 +546,47 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{The Gillespie Method}
+
+  We can model the transitions from one state to another (for a single agent) as a Markovian process that has a rate/propensity $\lambda$ that depends only on the `current' state. This implies that the inter-event times are exponentially distributed.
+
+  \pause
+
+  The `standard' approach under this Markovian assumption is to use the Gillespie method (also known as the Stochastic Simulation Algorithm).
+
+  The algorithm proceeds as follows:
+
+  \begin{enumerate}
+    \item Compute the total propensity $\Lambda$ for a reaction to occur
+    \item Draw the time to the next event $\sim \Exp(\Lambda)$
+    \item Draw the event $i$ that fires, where the probability of drawing that event is $\lambda_i / \Lambda$
+    \item Change the state according to the drawn event
+    \item Update all $\lambda_i$ for all events that need to have their rates updated
+    \item If we have reached the end of the simulation, exit; otherwise, return to Step 1.
+  \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
   \frametitle{Network Models: Methods}
   % \centering
   Computational Bottlenecks and Complications:
-  \begin{enumerate}[<+->]
-    \item Updating rates of neighbours upon becoming infected (exposed)
-    \item Separation of probability of (ever) firing and rate of firing
-    \item Non-Markovian inter-event/waiting times
+  \begin{enumerate}
+    \item<1-> Updating rates of neighbours upon becoming infected (exposed)
+    \item<2-> Separation of probability of (ever) firing and rate of firing
+    \item<3-> Non-Markovian inter-event/waiting times
   \end{enumerate}
   
-  \pause
+  \only<4>{
   Solution: Rejection-based sampling
+  }
 \end{frame}
 
-% \begin{frame}
+% \begin{frame}[t]
 %   \frametitle{Network Models: Methods}
 %   Example: Updating rates%
 
+%   \only<1-2>{Typical Implementation}
 %   \only<3->{Instead}%
 
 %   \begin{center}%
@@ -537,13 +603,21 @@
 
 % \end{frame}
 
-% \begin{frame}
-%   \frametitle{Network Models: Methods}
-%   Non-Markovian inter-event times
+\begin{frame}[t]
+  \frametitle{Network Models: Methods}
+  Probability of firing vs. Time to firing
 
-%   \centering
-%   \includegraphics[height=0.8\textheight]{img/40_covid/gamma_bounded.pdf}
-% \end{frame}
+
+
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Network Models: Methods}
+  Non-Markovian inter-event times
+
+  \centering
+  \includegraphics[height=0.8\textheight]{img/gamma_bounded.png}
+\end{frame}
 
 % \begin{frame}
 %   \frametitle{Network Models: Results}
@@ -567,22 +641,6 @@
 \section{Surrogate Models for Inference}\label{surrogates}
 
 % \begin{frame}
-%   \frametitle{Surrogate Modelling}
-  
-%   Objective: Enable inference of parameters of a complex (network-based) model using a surrogate ODE model.
-
-%   Challenges:
-%   \begin{itemize}
-%     \item Likelihoods for a stochastic network model are intractable; likelihood-free methods are far too expensive for response planning of outbreaks.
-%   \end{itemize}
-
-%   Contribution:
-%   \begin{itemize}
-%     \item Proof-of-concept study on a simple SIR model.
-%   \end{itemize}
-% \end{frame}
-
-% \begin{frame}
 %   \frametitle{Surrogate Modelling: Methods}
 %   \centering
 %   \includegraphics<1>[height=0.7\textheight]{exam_resource/Z_S_C}
@@ -591,26 +649,26 @@
 %   \only<2>{where $e$ is a multivariate Gaussian}
 % \end{frame}
 
-% \begin{frame}
-%   \frametitle{Surrogate Modelling: Methods}
+\begin{frame}
+  \frametitle{Surrogate Modelling: Methods}
 
-%   $\zeta(\theta, \eta) \approx s(\theta) + e(\theta, \eta)$
+  $\zeta(\theta, \eta) \approx s(\theta) + e(\theta, \eta)$
 
-%   $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Sigma(\theta, \eta))$
+  $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Sigma(\theta, \eta))$
 
-%   To estimate $e$:
-%   \begin{enumerate}
-%   \item Generate realisations of $\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
+  To estimate $e$:
+  \begin{enumerate}
+  \item Generate realisations of $\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
 
-%   \item Compute $E = \{\zeta(\theta_1, \eta_1) - s(\theta_1), \dots\}$
+  \item Compute $E = \{\zeta(\theta_1, \eta_1) - s(\theta_1), \dots\}$
 
-%   \item Take statistics of $E$: 
-%   \begin{itemize}
-%     \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
-%     \item $\Sigma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
-%   \end{itemize}
-%   \end{enumerate}
-% \end{frame}
+  \item Take statistics of $E$: 
+  \begin{itemize}
+    \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
+    \item $\Sigma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
+  \end{itemize}
+  \end{enumerate}
+\end{frame}
 
 % \begin{frame}
 %   \frametitle{Surrogate Modelling: Proof of Concept}
