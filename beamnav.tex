@@ -1,0 +1,105 @@
+\usepackage{fontawesome5}
+\setbeamertemplate{navigation symbols}{}
+\AddToHook{shipout/before}{\xdef\currentPageNumber{\inteval{\ReadonlyShipoutCounter+1}}}
+\AddToHook{shipout/foreground}{%
+  \put(0,0){%
+    \raisebox{-\dimexpr\height+0.5ex\relax}[0pt][0pt]{\makebox[\paperwidth][r]{%
+      \normalsize\color{structure!40!}%
+      \ifnum\currentPageNumber>1%
+        \href{\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber-1\relax}.svg}{\faArrowLeft}%
+      \else%
+        \textcolor{lightgray}{\faArrowLeft}%
+      \fi\hspace{0.5ex}%
+      \ifnum\currentPageNumber<\PreviousTotalPages%
+        \href{\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber+1\relax}.svg}{\faArrowRight}%
+      \else%
+        \textcolor{lightgray}{\faArrowRight}%
+      \fi%
+      \hspace{0.5ex}%
+    }}%
+  }%
+  \special{dvisvgm:raw
+    <style>svg{cursor: none}</style>%
+    <defs>%
+    <script type="text/javascript">%
+    <![CDATA[%
+      var cursorTimer;%
+      var downOnLink=false;%
+      var downOnRoot=false;%
+      function islink(tg){return (tg.tagName=='a') ? true : tg.parentNode ? islink(tg.parentNode) : false;};%
+      function ismmedia(tg){return (tg.tagName=='video'||tg.tagName=='audio') ? true : tg.parentNode ? ismmedia(tg.parentNode) : false;};%
+      document.addEventListener('mousemove', function(e){%
+        if(islink(e.target)||ismmedia(e.target)||e.target.getAttribute('class')=='annot'){%
+          e.target.style.cursor='pointer';}else{e.target.style.cursor='default';}%
+        try{clearTimeout(cursorTimer);}catch(err){};%
+        cursorTimer=setTimeout(function(){e.target.style.cursor='none';},3000);%
+      });%
+      window.addEventListener('contextmenu', function(e){% capture right click
+        if(!islink(e.target)&&!ismmedia(e.target)) e.preventDefault();%
+      });%
+      document.addEventListener('mousedown', function(e){%
+        if(islink(e.target)||ismmedia(e.target)) downOnLink=true;%
+        else downOnRoot=true;%
+      });%
+      document.addEventListener('mouseup', function(e){%
+        if(downOnLink||!downOnRoot){downOnLink=false;return;}%
+        downOnRoot=false;%
+        \ifnum\currentPageNumber<\PreviousTotalPages
+          if(!e.shiftKey&&e.button==0) document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber+1\relax}.svg');%
+        \fi%
+        \ifnum\currentPageNumber>1
+          if(e.shiftKey||e.button>1) document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber-1\relax}.svg');%
+        \fi%
+      });%
+      document.addEventListener('wheel', function(e){%
+        \ifnum\currentPageNumber<\PreviousTotalPages
+          if(e.deltaY>0){%
+            document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber+1\relax}.svg');%
+          }%
+        \fi%
+        \ifnum\currentPageNumber>1
+          if(e.deltaY<0){%
+            document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber-1\relax}.svg');%
+          }%
+        \fi%
+      });%
+      document.addEventListener('keydown',function(e){%
+          \ifnum\currentPageNumber<\PreviousTotalPages
+            if(e.key=='PageDown'||e.key=='ArrowDown'||e.key=='ArrowRight')%
+                document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber+1\relax}.svg');%
+          \fi%
+          \ifnum\currentPageNumber>1
+            if(e.key=='PageUp'||e.key=='ArrowUp'||e.key=='ArrowLeft')%
+              document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{\the\numexpr\currentPageNumber-1\relax}.svg');%
+          \fi%
+          if(e.key=='Home')
+            document.location.replace('\jobname-\zeroPad{\PreviousTotalPages}{1}.svg');%
+          if(e.key=='End')
+            document.location.replace('\jobname-\PreviousTotalPages.svg');%
+        });%
+    ]]>%
+    </script>%
+    </defs>%
+  }%
+}%
+% helper macro \zeroPad : zero-pads integer according to template,
+% e. g. 123 --> 00123 if template is `99999`
+% #1: arbitrary integer number as template specifying the
+%     width, e. g. `987654' for a width of 6 digits
+% #2: the number to be formatted
+\def\zeroPad#1#2{\zeroPadI{\zeroTemplate{0}{#1}}{#2}}
+%low level macros used by \zeroPad
+\def\zeroPadI#1#2{% #1: string of zeros specifying width, #2 number
+  \ifnum1#2<1#1
+    \zeroPadI{#1}{0#2}%
+  \else%
+    #2%
+  \fi%
+}%
+\def\zeroTemplate#1#2{% create template (string of zeros) from given num
+  \ifnum10#1>1#2
+    #1%
+  \else%
+    \zeroTemplate{0#1}{#2}%
+  \fi%
+}%

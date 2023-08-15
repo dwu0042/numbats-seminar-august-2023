@@ -2,7 +2,7 @@
 % !TEX encoding = UTF-8 Unicode
 % !BIB program = biber
 
-\documentclass[aspectratio=169]{beamer}
+\documentclass[dvisvgm,aspectratio=169]{beamer}
 \usepackage[style=authoryear-icomp, mincitenames=1, maxcitenames=2, url=false, backend=biber]{biblatex}
 \usepackage{amsmath, amssymb, mathtools}
 \usepackage{textgreek}
@@ -13,15 +13,17 @@
 \usepackage{pgfpages}
 \usepackage{xpatch}
 \usepackage{tabularx}
+\usepackage{tikz}
+\usepackage{animate}
 
-\usepackage{gfsneohellenicot}
+% \usepackage{gfsneohellenicot}
 
 % \usepackage{cmbright}
 % \usepackage[OT1]{fontenc}
 
 \usetheme{metropolis}
-\usepackage{fontspec}
-\usepackage[sfdefault]{atkinson}
+% \usepackage{fontspec}
+% \usepackage[sfdefault]{atkinson}
 % \setsansfont[BoldFont={Atkinson Hyperlegible}]{Atkinson Hyperlegible}
 
 %--------------------------------
@@ -93,6 +95,23 @@
 
 % \metroset{numbering=none}
 
+\usetikzlibrary{tikzmark}
+
+\newcounter{tmp}
+\newcommand<>\Highlight[1]{%
+\stepcounter{tmp}%
+\only#2{\begin{tikzpicture}[remember picture,overlay]
+\fill[green!60!black,opacity=0.5] 
+  ([xshift=-.2em,yshift=2ex]pic cs:start-\thetmp)
+    rectangle  
+  ([xshift=.2em,yshift=-1ex]pic cs:end-\thetmp);
+\end{tikzpicture}}%
+\tikzmark{start-\thetmp}#1\tikzmark{end-\thetmp}%
+}
+
+\input{beamnav.tex}
+
+
 %--------------
 % DOCUMENT INFO
 %--------------
@@ -101,8 +120,9 @@
 \subtitle{Not-So-Great Models in Complex Situations}
 \author{David Wu}
 \date{17 August 2023}
+\institute{NUMBAT Seminar}
 % \titlegraphic{\vspace{4.5cm}\flushright\includegraphics[width=2cm,height=2cm]{exam_resource/uoa-v-colour2.png}} 
-% \addbibresource{biblio.bib}
+\addbibresource{biblio.bib}
 % \addbibresource{biblio_samoa.bib}
 % \addbibresource{covid_reports.bib}
 % \addbibresource{covid_others.bib}
@@ -263,7 +283,7 @@
   Non-linear Least Squares (frequentist)
 
   \begin{equation*}
-    \min_{\theta, x(0)}  \left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right)  \right\rVert^2_2
+    \min_{\theta, x(0)} \qquad \left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right)  \right\rVert^2_2
   \end{equation*}
   \pause
 
@@ -279,20 +299,81 @@
   \frametitle{Problems}
 
   \begin{enumerate}
-    \setlength{\itemsep}{1ex}
+    \setlength{\itemsep}{2ex}
     \item Numerical integration can be slow.
     \item Solving the ODE implicitly assumes that the model is correct.
   \end{enumerate}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{A Partial Solution: Collocation on Splines}
 
-  Instead of integrating the ODE, getting a state, and then comparing against the data, we could go backwards.
-  
-  We could get a proposal for a vector field from the data*, then compare the vector field with the RHS of the ODE.
-  % To get the proposal, we will fit a smooth (differentiable) function to the data: a spline. 
+  We can bypass the expense of the numerical integration by \textit{collocating} the vector field of a proposed solution against the RHS of the ODE.
 
+  \begin{center}
+    \animategraphics[autoplay,loop,palindrome,height=0.7\textheight]{2}{img/quiv/quiver_}{0}{6}
+  \end{center}
+
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{A Partial Solution: Collocation on Splines}
+
+  Evaluating this on the entire domain is computationally intractable. 
+  \emph{But}, we only care about the ODE ``fitting'' around the state estimate. So we can reduce our problem to matching along a finite number of points.
+
+  \pause
+
+  To get this state estimate we could use a spline smoothing approach:
+
+  \begin{enumerate}
+    \item Smooth the data $y(t)$ to $\hat{y}(t)$ using splines
+    \only<2>{\begin{equation*}
+      \begin{gathered}
+        \hat{y}(t) = \underbrace{\Phi}_{\mathclap{\text{Spline basis}}} \cdot \overbrace{\hat{c}}^{\mathclap{\text{Spline coefs}}}\\
+        \hat{c} = \argmin_c \left\{\left\lVert y - \Phi c \right\rVert^2 + \lambda \left\lVert \frac{d^2}{dt^2}\Phi c \right\rVert^2\right\}
+      \end{gathered}
+    \end{equation*}}
+    \pause
+    \item Invert $g$ to get $\hat{x}(t) = g^{-1}(\hat{y}(t))$ 
+    \item Fit using the likelihood induced by the loss\begin{equation*}
+      \left\lVert \frac{d}{dt} \hat{x} - f(\hat{x}; \theta) \right\rVert^2
+    \end{equation*}
+  \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problems}
+  
+  \begin{enumerate}
+    \setlength{\itemsep}{2ex}
+    \item<1-> Smoothing splines make implicit assumptions about the dynamics of the state
+    \only<1>{
+      \begin{equation*}
+        \hat{c} = \argmin_c \left\{\left\lVert y - \Phi c \right\rVert^2 + \lambda \left\lVert \frac{d^2}{dt^2}\Phi c \right\rVert^2\right\}
+      \end{equation*}
+    }
+    \item<2-> The method falls apart if the observation model $g$ is not invertible
+    \begin{itemize}
+      \item partial observation of the states of the ODE
+      \item missing data at certain time points
+      \item identifiability problems
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Using Auxiliary Information: Generalised Profiling}
+
+  \textcite{ramsay2007} introduce \textit{generalised profiling} to bridge these gaps.
+
+  Core idea: Use the ODE to additionally inform the spline smoothing process.
+
+  \begin{equation*}\begin{gathered}
+    \hat{\theta} = \argmin_\theta \left\{ \lVert y - \Phi \hat{c}(\theta) \rVert^2 \right\}\\
+    \hat{c}(\theta) = \argmin_c \left\{ \lVert y - \Phi c \rVert^2 + \lambda \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2 \right\}
+  \end{gathered}\end{equation*}
 
 \end{frame}
 
