@@ -25,7 +25,9 @@
 \usepackage{fontspec}
 % \usepackage[sfdefault]{atkinson}
 % \setsansfont[BoldFont={Atkinson Hyperlegible}]{Atkinson Hyperlegible}
-% \setsansfont[Boldfont={Computer Modern}]{Computer Modern}
+% \setsansfont[Boldfont={Utopia}]{Utopia}
+% \usepackage{noto}
+\usepackage{lmodern}
 
 %--------------------------------
 % DRAFTING AND SLIDE CONSTRUCTION
@@ -160,23 +162,27 @@
 
 \section{Fitting ODE Models}\label{fitting-ode}
 
-% \begin{frame}
-%   \frametitle{Fitting ODEs: Summary}
+\begin{frame}
+  \frametitle{General Problem Setup}
 
-%   Objective: Robustly fit a deterministic ODE model to epidemic data.
-  
-%   Challenges: 
-%   \begin{itemize}
-%     \item Trajectory matching can be expensive, and we want to deal with that problem.
-%     \item When the model is only partially observed, we run into issues with identifiability.
-%   \end{itemize}
+  We have data $y$ at time points $t_i$.
 
-%   Contributions:
-%   \begin{itemize}
-%     \item Novel interpretation of existing method in a likelihood-based formulation that allows for natural interpretation and uncertainty quantification in parameters and state.
-%     \item Analysis and forecasting of a measles outbreak in Samoa.
-%   \end{itemize}
-% \end{frame}
+  We assume that there is some underlying state $x$ that we observe to get the data.
+
+  We have some model $\mathcal{M}$ of this underlying state that depends on parameters $\theta$.
+
+  \pause
+
+  We want to:
+
+  \begin{enumerate}
+    \item Predict the underlying state $x$ or potential data $y$ at future time points
+    \item Determine likely model parameters $\theta$ that could produce the data $y$.
+  \end{enumerate}
+
+
+
+\end{frame}
 
 \begin{frame}
 
@@ -419,7 +425,7 @@
   \frametitle{Fitting ODEs: Measles in Samoa}
 \centering
   \vspace{0.25em}
-  \includegraphics[height=0.75\textheight]{img/samoa_data.pdf}
+  \includegraphics[height=0.75\textheight]{img/samoa_data}
 
   \vspace{-0.25em}
   {\tiny \linespread{0}Plots of the available data for the 2019 Samoan measles outbreak (current hospitalisations and cumulative discharges available, but not shown). Top-left: cumulative reported cases; top-right: cumulative reported deaths; bottom-left: report incidence (daily rate of new cases since last report); bottom-right: cumulative reported hospitalisations.\\}
@@ -447,7 +453,7 @@
 %   \includegraphics[height=0.85\textheight]{img/37_samoa/bivariate_profile.pdf}
 % \end{frame}
 
-% \section{Network Models}\label{network-sim}
+\section{Network Models}\label{network-sim}
 
 % \begin{frame}
 %   \frametitle{Network Models: Summary}
@@ -480,35 +486,36 @@
 % \end{frame}
 
 
-% \begin{frame}
-%   \frametitle{Network Models: The Network}
-%   \centering
-%   Bipartite Networks: Explicitly modelling contexts of infection
+\begin{frame}
+  \frametitle{Network Models: The Network}
+  \centering
+  Bipartite Networks: Explicitly modelling contexts of infection
 
-%   \includegraphics[height=0.7\textheight]{img/40_covid/contact-multiple}
+  \includegraphics[height=0.7\textheight]{img/contact-multiple}
 
-%   \hfill {\small *work of others in the Network Contagion Team}
-% \end{frame}
+  \hfill {\scriptsize *work of others in the Network Contagion Team}
+\end{frame}
 
-% \begin{frame}
-%   \frametitle{Network Models: The Model (roughly)}
-%   \centering
+\begin{frame}
+  \frametitle{Network Models: The Model (roughly)}
+  \centering
 
-%   \includegraphics[height=0.8\textheight]{exam_resource/transmission_diagram_big_no_distancing.pdf}
-% \end{frame}
+  \includegraphics[height=0.8\textheight]{img/transmission_diagram_big_no_distancing}
+\end{frame}
 
-% \begin{frame}
-%   \frametitle{Network Models: Methods}
-%   % \centering
-%   Computational Bottlenecks and Complications:
-%   \begin{enumerate}[<+->]
-%     \item Updating rates of neighbours upon becoming infected (exposed)
-%     \item Separation of probability of (ever) firing and rate of firing
-%     \item Non-Markovian inter-event/waiting times
-%   \end{enumerate}
-
-%   Solution: Rejection-based sampling
-% \end{frame}
+\begin{frame}
+  \frametitle{Network Models: Methods}
+  % \centering
+  Computational Bottlenecks and Complications:
+  \begin{enumerate}[<+->]
+    \item Updating rates of neighbours upon becoming infected (exposed)
+    \item Separation of probability of (ever) firing and rate of firing
+    \item Non-Markovian inter-event/waiting times
+  \end{enumerate}
+  
+  \pause
+  Solution: Rejection-based sampling
+\end{frame}
 
 % \begin{frame}
 %   \frametitle{Network Models: Methods}
@@ -557,7 +564,7 @@
 %   \hfill{\small *uncertainty quantification done by others in the Network Contagion Team}
 % \end{frame}
 
-% \section{Surrogate Models for Inference}\label{surrogates}
+\section{Surrogate Models for Inference}\label{surrogates}
 
 % \begin{frame}
 %   \frametitle{Surrogate Modelling}
