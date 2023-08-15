@@ -1,6 +1,6 @@
 pres_files/*
 *.html
-
+pres-*.svg
 
 *.aux
 *.bbl
