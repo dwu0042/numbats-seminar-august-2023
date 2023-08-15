@@ -22,9 +22,10 @@
 % \usepackage[OT1]{fontenc}
 
 \usetheme{metropolis}
-% \usepackage{fontspec}
+\usepackage{fontspec}
 % \usepackage[sfdefault]{atkinson}
 % \setsansfont[BoldFont={Atkinson Hyperlegible}]{Atkinson Hyperlegible}
+% \setsansfont[Boldfont={Computer Modern}]{Computer Modern}
 
 %--------------------------------
 % DRAFTING AND SLIDE CONSTRUCTION
@@ -136,26 +137,7 @@
 
 \begin{frame}
   \frametitle{About Me}
-  % \begin{columns}
-  %   \begin{column}{0.33\textwidth}
-  %     \centering
-  %     \includegraphics[width=0.5\textwidth]{img/uoa-v-colour2.png}
 
-  %     PhD from Dept. Engineering Science at the University of Auckland in New Zealand
-  %   \end{column}
-  %   \begin{column}{0.33\textwidth}
-  %     \centering
-  %     \includegraphics[width=0.5\textwidth]{img/python.jpeg}
-
-  %     Primarily use Python tooling
-  %   \end{column}
-  %   \begin{column}{0.33\textwidth}
-  %     \centering
-  %     \includegraphics[width=0.5\textwidth]{img/virus.jpg}
-
-  %     Research is in the field of infectious diseases
-  %   \end{column}
-  % \end{columns}
   \centering
   \begin{tabular}{m{0.3\textwidth} m{0.3\textwidth} m{0.3\textwidth}}
     \begin{center}\includegraphics[width=0.2\textwidth]{img/uoa-v-colour2.png}\end{center}%
@@ -290,7 +272,7 @@
   Bayesian Analogue
 
   \begin{equation*}
-    p(\theta, x_0 | y) = \underbrace{\left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right) \right\rVert^2_{\Gamma^{-1}}}_{\text{likelihood: } \cdot p(y|\theta, x_0)} \;\cdot \;p(\theta, x_0)
+    p(\theta, x_0 | y) = \underbrace{\exp\left(-\frac{1}{2}\left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right) \right\rVert^2_{\Gamma^{-1}}\right)}_{\text{likelihood: } \cdot p(y|\theta, x_0)} \;\cdot \;p(\theta, x_0)
   \end{equation*}
 
 \end{frame}
@@ -319,12 +301,12 @@
 \begin{frame}[t]
   \frametitle{A Partial Solution: Collocation on Splines}
 
-  Evaluating this on the entire domain is computationally intractable. 
-  \emph{But}, we only care about the ODE ``fitting'' around the state estimate. So we can reduce our problem to matching along a finite number of points.
+  Evaluating this on the entire domain is computationally intractable, so we evaluate at specific ``special'' points.
+  The obvious choice is to evaluate this at our data points. But the data is noisy, so taking numerical derivatives is hazardous.
 
   \pause
 
-  To get this state estimate we could use a spline smoothing approach:
+  We can solve this using a smoothing spline:
 
   \begin{enumerate}
     \item Smooth the data $y(t)$ to $\hat{y}(t)$ using splines
@@ -341,6 +323,23 @@
     \end{equation*}
   \end{enumerate}
 
+\end{frame}
+
+\begin{frame}
+  \centering
+  \only<1>{
+    \includegraphics[height=0.8\textheight]{img/smoother/smoother_01.png}
+  }
+  \only<2>{
+    \includegraphics[height=0.8\textheight]{img/smoother/smoother_02.png}
+  }
+  \only<3>{
+    \includegraphics[height=0.8\textheight]{img/smoother/smoother_03.png}
+  }
+
+ \only<4>{
+  \animategraphics[autoplay,loop,palindrome,height=0.8\textheight]{4}{img/smoother/smooth_comp_}{0}{10}
+ }
 \end{frame}
 
 \begin{frame}
@@ -370,6 +369,8 @@
 
   Core idea: Use the ODE to additionally inform the spline smoothing process.
 
+  \pause
+
   \begin{equation*}\begin{gathered}
     \hat{\theta} = \argmin_\theta \left\{ \lVert y - \Phi \hat{c}(\theta) \rVert^2 \right\}\\
     \hat{c}(\theta) = \argmin_c \left\{ \lVert y - \Phi c \rVert^2 + \lambda \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2 \right\}
@@ -377,52 +378,48 @@
 
 \end{frame}
 
-% \begin{frame}
-%   \frametitle{Fitting ODEs: Methods}
+\begin{frame}
+  \frametitle{A Likelihood-based Interpretation}
   
-%   Generalised profiling (parameter cascading) in the likelihood framework.
-%   \vspace{2em}
 
-%   \only<1>{
-%     Classical Generalised Profiling
-
-%     Inner:
-%     \begin{equation}
-%       \hat{c}(\theta) = \min_c \norm{y - G(\Phi{c})}^2 + \lambda \norm{\mathcal{D}(\Phi{c}) - f(\Phi{c}, \theta)}^2
-%     \end{equation}
-%     Outer:
-%     \begin{equation}
-%       \hat\theta = \min_\theta \norm{y - G(\Phi\hat{c}(\theta))}^2.
-%     \end{equation}
-%   }
-
-%   \only<2>{
-%     Likelihood-based Interpretation
-
-%     \begin{equation}
-%       \hat\theta, \hat{c} = \min_{\theta, c} \log\mathcal{L}(\theta, c) = \norm[\Gamma^{-1}]{y - G(\Phi{c})}^2 + \norm[\widehat{\Sigma^{-1}}]{\mathcal{D}(\Phi{c}) - f(\Phi{c},\theta)}^2
-%     \end{equation}
-%   }
-% \end{frame}
-
-% \begin{frame}
-%   \frametitle{Fitting ODEs: Methods}
-%   Uncertainty Quantification
-
-%   \begin{enumerate}
-%     \item Likelihood Profiling
-%     \item Bootstrapping with Randomised Maximum Likelihood
-%   \end{enumerate}
-% \end{frame}
+\end{frame}
 
 
-%%%%%%-------------------------------
+\begin{frame}
+  \frametitle{Implementation}
+
+  If we are using splines, we have closed forms for the derivatives.
+
+  We can also use \emph{automatic differentiation} to get gradients of the log-likelihood, so that we can perform optimisation on it.
+
+  We use CasADi for this, and it has interfaces to IPOPT for optimisation (typical domain is optimal control).
+
+  {\begin{center}
+  \includegraphics[width=0.4\textwidth]{img/casadi}\end{center}}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Case Study}
+
+  Measles epidemic in Samoa (Sept 2019 -- Jan 2020)
+
+  \begin{itemize}
+    \item nearly 6000 cases (pop. 200 000)
+    \item 83 deaths
+    \item Anomalously low vaccination coverage \begin{itemize}
+      \item 40\% first dose of vaccine
+      \item 28\% second dose of vaccine 
+    \end{itemize}
+  \end{itemize}
+  
+\end{frame}
 
 \begin{frame}
   \frametitle{Fitting ODEs: Measles in Samoa}
 \centering
   \vspace{0.25em}
-  % \includegraphics[height=0.75\textheight]{exam_resource/samoa_data.pdf}
+  \includegraphics[height=0.75\textheight]{img/samoa_data.pdf}
 
   \vspace{-0.25em}
   {\tiny \linespread{0}Plots of the available data for the 2019 Samoan measles outbreak (current hospitalisations and cumulative discharges available, but not shown). Top-left: cumulative reported cases; top-right: cumulative reported deaths; bottom-left: report incidence (daily rate of new cases since last report); bottom-right: cumulative reported hospitalisations.\\}
