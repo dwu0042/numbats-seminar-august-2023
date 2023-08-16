@@ -39,9 +39,10 @@
     BoldFont=*sr, % semibold
     BoldItalicFont=*so, % semibold oblique
     NFSSFamily=cmbr
-    ]
-
+]
+    
 \usepackage{cmbright}       %CMU Bright for math
+\setmonofont{FreeMono}
 
 %--------------------------------
 % DRAFTING AND SLIDE CONSTRUCTION
@@ -159,12 +160,12 @@
 
   \centering
   \begin{tabular}{m{0.3\textwidth} m{0.3\textwidth} m{0.3\textwidth}}
-    \begin{center}\includegraphics[width=0.2\textwidth]{img/uoa-v-colour2.png}\end{center}%
-    &\begin{center}\includegraphics[width=0.2\textwidth]{img/python.jpeg}\end{center}%
-    &\begin{center}\includegraphics[width=0.2\textwidth]{img/virus.jpg}\end{center}\\%
-    \begin{center}{\scriptsize PhD from Dept. Engineering Science at the University of Auckland in New Zealand}\end{center}
-    &\begin{center}{\scriptsize Primarily use Python tooling}\end{center}
-    &\begin{center}{\scriptsize Research is in the field of infectious diseases}\end{center}
+    \only<1->{\begin{center}\includegraphics[width=0.2\textwidth]{img/uoa-v-colour2.png}\end{center}}%
+    &\only<2->{\begin{center}\includegraphics[width=0.185\textwidth]{img/python.jpeg}\end{center}}%
+    &\only<3>{\begin{center}\includegraphics[width=0.2\textwidth]{img/virus.jpg}\end{center}}\\%
+    \only<1->{\begin{center}{\scriptsize PhD from Dept. Engineering Science at the University of Auckland in New Zealand}\end{center}}%
+    &\only<2->{\begin{center}{\scriptsize Primarily use Python tooling}\end{center}}%
+    &\only<3>{\begin{center}{\scriptsize Research is in the field of infectious diseases}\end{center}}%
   \end{tabular}
 \end{frame}
 
@@ -314,6 +315,7 @@
 
   \begin{enumerate}
     \setlength{\itemsep}{2ex}
+    \item The (frequentist) estimation process can be very sensitive to the initial guess (likelihood has many local optima)
     \item Numerical integration can be slow.
     \item Solving the ODE implicitly assumes that the model is correct.
   \end{enumerate}
@@ -583,6 +585,20 @@
   \includegraphics[height=0.85\textheight]{img/bivariate_profile.pdf}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Takeaway}
+
+  For ODE models, there are better ways to compute the likelihood than through numerical integration.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{More Info}
+
+  \href{https://doi.org/10.1016/j.idm.2023.01.007}{\texttt{doi:10.1016/j.idm.2023.01.007}}
+
+\end{frame}
+
 \section{Network Models}\label{network-sim}
 
 
@@ -779,57 +795,69 @@
   \hfill{\scriptsize *uncertainty quantification done by others in the Network Contagion Team}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Takeaway}
+
+  Simulating big agent-based models is expensive; rejection-based methods can provide a way of reducing that computational cost.
+
+\end{frame}
+
 \section{Surrogate Models for Inference}\label{surrogates}
 
-% \begin{frame}
-%   \frametitle{Surrogate Modelling: Methods}
-%   \centering
-%   \includegraphics<1>[height=0.7\textheight]{exam_resource/Z_S_C}
-%   \includegraphics<2>[height=0.7\textheight]{exam_resource/Z_S_E}
+\begin{frame}[t]
+  \frametitle{Surrogate Modelling}
+  \vspace{2em}
+  \centering
+  \includegraphics<1>[width=0.8\textwidth]{img/ZCS}
+  \includegraphics<2>[width=0.8\textwidth]{img/ZES}
 
-%   \only<2>{where $e$ is a multivariate Gaussian}
-% \end{frame}
+  \only<2>{where $e$ is a multivariate Gaussian}
+\end{frame}
 
 \begin{frame}
   \frametitle{Surrogate Modelling: Methods}
 
-  $\zeta(\theta, \eta) \approx s(\theta) + e(\theta, \eta)$
+  Core idea is to model the discrepancy between the complex model $\zeta$ and the surrogate model $s$ as a multivariate Gaussian. 
 
-  $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Gamma(\theta, \eta))$
+  % $\zeta(\theta, \eta) \approx s(\theta) + e(\theta, \eta)$
 
-  To estimate $e$:
+  % $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Gamma(\theta, \eta))$
+
+  To estimate this discrepancy approximator $e$:
   \begin{enumerate}
-  \item Generate realisations of $\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
+  \item Sample realisations of the complex model%$\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
+  \item Compute the exact discrepancies 
+  % \item Compute $E = \{\zeta(\theta_1, \eta_1) - s(\theta_1), \dots\}$
 
-  \item Compute $E = \{\zeta(\theta_1, \eta_1) - s(\theta_1), \dots\}$
-
-  \item Take statistics of $E$: 
+  \item Take statistics of those discrepancies: 
   \begin{itemize}
-    \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
-    \item $\Gamma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
+    % \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
+    \item mean
+    % \item $\Gamma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
+    \item covariance
   \end{itemize}
   \end{enumerate}
 \end{frame}
 
-% \begin{frame}
-%   \frametitle{Surrogate Modelling: Proof of Concept}
-%   Approximate a stochastic network SIR model with an SIR ODE:
-%   \centering
+\begin{frame}
+  \frametitle{Surrogate Modelling: Proof of Concept}
+  Approximate a stochastic network SIR model with an SIR ODE:
+  \centering
 
-%   \includegraphics[height=0.85\textheight]{img/50_surrogate/runrunvar.pdf}
-% \end{frame}
+  \includegraphics[height=0.85\textheight]{img/surr_realz_ode}
+\end{frame}
 
-% \begin{frame}
-%   \frametitle{Surrogate Modelling: Proof of Concept}
+\begin{frame}
+  \frametitle{Surrogate Modelling: Proof of Concept}
 
-%   The Curve Registration Problem
+  The Curve Registration Problem
 
-%   \centering
-%   $\text{Stoch}(t; \theta, \eta) \approx \text{ODE}(t {\color{red}- \tau}; \theta) + e(\mu, \Sigma)$
+  \centering
+  $\text{Stoch}(t; \theta, \eta) \approx \text{ODE}(t {\color{red}- \tau}; \theta) + e[\mu, \Gamma]$
 
-%   \includegraphics<1>[height=0.8\textheight]{img/50_surrogate/runrunvar.pdf}
-%   \includegraphics<2>[height=0.8\textheight]{img/50_surrogate/k100_state_figure_510}
-% \end{frame}
+  \includegraphics<1>[height=0.7\textheight]{img/surr_realz_ode}
+  \includegraphics<2>[height=0.7\textheight]{img/shifted_surr_ode}
+\end{frame}
 
 % \begin{frame}
 %   \frametitle{Surrogate Modelling: Proof of Concept}
@@ -844,6 +872,12 @@
 %   \centering
 %   \includegraphics[height=0.85\textheight]{img/50_surrogate/surrogate_r0rec_profile}
 % \end{frame}
+
+\begin{frame}
+  \frametitle{Takeaway}
+
+  If we accept and account certain approximations, we can make use of an `inadequate' model to make decent inferences of complex systems.
+\end{frame}
 
 \section{Summary}
 
