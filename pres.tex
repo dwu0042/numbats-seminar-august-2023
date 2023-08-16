@@ -456,7 +456,6 @@
 
   \only<1>{
     Profile Likelihood
-
     \begin{equation*}
       \mathcal{L}_{\Omega}(\omega) = \argmax_{\theta, c} \mathcal{L}(c, \theta | y) \Big|_{\Omega=\omega}
     \end{equation*}
@@ -467,7 +466,10 @@
   \only<2>{
     Bootstrapping
 
-    
+    Resample the data by generating realisations of the errors ($\varepsilon, \nu$)
+
+    \centering
+    \includegraphics[height=0.7\textheight]{img/rml_bootstrap_example.pdf}
   }
   
 \end{frame}
@@ -843,32 +845,34 @@
 %   \includegraphics[height=0.85\textheight]{img/50_surrogate/surrogate_r0rec_profile}
 % \end{frame}
 
-% \section{Summary}
+\section{Summary}
 
-% \begin{frame}
-%   \frametitle{Summary}
-%   \begin{enumerate}
-%     \item \hyperlink{fitting-ode}{Fitting ODE models with generalised profiling}
-%     \item \hyperlink{network-sim}{Simulating stochastic models on networks}
-%     \item \hyperlink{surrogates}{Surrogate modelling techniques for inference}
-%   \end{enumerate}
-% \end{frame}
 
-% \begin{frame}{Thanks}
-%   \begin{columns}
-%     \begin{column}{0.45\textwidth}
-%       \includegraphics[width=\textwidth]{exam_resource/Screenshot from 2023-04-12 16-14-37.png}
-%     \end{column}
-%     \begin{column}{0.45\textwidth}
-%       \includegraphics[width=\textwidth]{exam_resource/XbYFITdo.jpeg}
-%     \end{column}
-    
-%   \end{columns}
+\begin{frame}
+  \frametitle{Summary}
+  \begin{enumerate}
+    \item \hyperlink{fitting-ode}{Fitting ODE models with generalised profiling}
+    \item \hyperlink{network-sim}{Simulating stochastic models on networks}
+    \item \hyperlink{surrogates}{Surrogate modelling techniques for inference}
+  \end{enumerate}
+\end{frame}
 
-% \end{frame}
+\begin{frame}{Thanks}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{img/samoa_crew.png}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{img/XbYFITdo.jpeg}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 \begin{frame}[standout]
   \centering
+  Thank you.
+
+  Questions?
 \end{frame}
 % 
 \end{document}
