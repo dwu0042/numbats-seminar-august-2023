@@ -3,6 +3,8 @@
 % !BIB program = biber
 
 \documentclass[dvisvgm,aspectratio=169]{beamer}
+\usetheme{metropolis}
+
 \usepackage[style=authoryear-icomp, mincitenames=1, maxcitenames=2, url=false, backend=biber]{biblatex}
 \usepackage{amsmath, amssymb, mathtools}
 \usepackage{textgreek}
@@ -18,16 +20,28 @@
 
 % \usepackage{gfsneohellenicot}
 
-% \usepackage{cmbright}
-% \usepackage[OT1]{fontenc}
 
-\usetheme{metropolis}
-\usepackage{fontspec}
+% \usepackage{fontspec}
 % \usepackage[sfdefault]{atkinson}
 % \setsansfont[BoldFont={Atkinson Hyperlegible}]{Atkinson Hyperlegible}
 % \setsansfont[Boldfont={Utopia}]{Utopia}
 % \usepackage{noto}
-\usepackage{lmodern}
+% \usepackage{lmodern}
+% \usepackage{fourier}
+% \usepackage[OT1]{fontenc}
+% \usefonttheme{sansserif}
+% \setsansfont{cmbright}
+\usepackage[no-math]{fontspec}
+\setsansfont{cmunb}[        %CMU Bright for text
+    Extension=.otf,
+    UprightFont=*mr,
+    ItalicFont=*mo,
+    BoldFont=*sr, % semibold
+    BoldItalicFont=*so, % semibold oblique
+    NFSSFamily=cmbr
+    ]
+
+\usepackage{cmbright}       %CMU Bright for math
 
 %--------------------------------
 % DRAFTING AND SLIDE CONSTRUCTION
@@ -69,32 +83,32 @@
 
 \xapptobibmacro{cite}{\setunit{\nametitledelim}\printfield{title}}{}{}
 
-\DeclareSymbolFont{pazosymbols}{OMS}{zplm}{m}{n}
-\makeatletter
-\ExplSyntaxOn %define \xmapsto
-\DeclareMathSymbol \c_pazo_minus \mathbin { pazosymbols } 0
-\DeclareMathSymbol \c_pazo_mapstochar \mathrel { pazosymbols } { "37 }
-\DeclareMathSymbol \c_pazo_rightarrow \mathrel { pazosymbols } { "21 }
-\cs_new_protected_nopar:Nn \pazo_relbar: {
-  \mathrel {
-    \mathpalette \mathsm@sh \c_pazo_minus
-  }
-}
-\cs_set_protected_nopar:Nn \MT_mapsto_fill: {
-  \arrowfill@ { \c_pazo_mapstochar \pazo_relbar: } \pazo_relbar: \c_pazo_rightarrow
-}
-\ExplSyntaxOff
-\makeatother
+% \DeclareSymbolFont{pazosymbols}{OMS}{zplm}{m}{n}
+% \makeatletter
+% \ExplSyntaxOn %define \xmapsto
+% \DeclareMathSymbol \c_pazo_minus \mathbin { pazosymbols } 0
+% \DeclareMathSymbol \c_pazo_mapstochar \mathrel { pazosymbols } { "37 }
+% \DeclareMathSymbol \c_pazo_rightarrow \mathrel { pazosymbols } { "21 }
+% \cs_new_protected_nopar:Nn \pazo_relbar: {
+%   \mathrel {
+%     \mathpalette \mathsm@sh \c_pazo_minus
+%   }
+% }
+% \cs_set_protected_nopar:Nn \MT_mapsto_fill: {
+%   \arrowfill@ { \c_pazo_mapstochar \pazo_relbar: } \pazo_relbar: \c_pazo_rightarrow
+% }
+% \ExplSyntaxOff
+% \makeatother
 
-\newenvironment{popupbox}[1]%
-{%
-    \metroset{block=fill}%
-    \begin{textblock*}{0.9\textwidth}(0.1\textwidth,0.15\textheight)%
-        \begin{alertblock}{#1}%
-}%
-{       \end{alertblock}%
-    \end{textblock*}%
-}%
+% \newenvironment{popupbox}[1]%
+% {%
+%     \metroset{block=fill}%
+%     \begin{textblock*}{0.9\textwidth}(0.1\textwidth,0.15\textheight)%
+%         \begin{alertblock}{#1}%
+% }%
+% {       \end{alertblock}%
+%     \end{textblock*}%
+% }%
 
 
 % \metroset{numbering=none}
@@ -113,8 +127,11 @@
 \tikzmark{start-\thetmp}#1\tikzmark{end-\thetmp}%
 }
 
-\input{beamnav.tex}
+\usetikzlibrary{positioning,intersections}
+\usetikzlibrary{shapes.geometric, shapes.arrows, shapes.symbols, shapes.misc}
+\usetikzlibrary{arrows, arrows.meta, bending}
 
+\input{beamnav.tex}
 
 %--------------
 % DOCUMENT INFO
@@ -136,7 +153,6 @@
 \begin{document}
 
 \frame[plain,noframenumbering]{\titlepage}
-
 
 \begin{frame}
   \frametitle{About Me}
@@ -170,7 +186,7 @@
 
   We assume that there is some underlying state $x$ that we observe to get the data.
 
-  We have some $\underbrace{\text{mechanistic model }}_{\text{ODE model}} \mathcal{M}$ of how $x$ evolves over time that depends on parameters $\theta$.
+  We have some $\underbrace{\text{mechanistic model}}_{\text{ODE model}}\;\mathcal{M}$ of how $x$ evolves over time that depends on parameters $\theta$.
 
   \pause
 
@@ -190,7 +206,17 @@
   \frametitle{ODE Models}
   \only<1>{
     \centering
-    \includegraphics[width=0.85\textwidth]{img/sir_diagram.png}
+    % \includegraphics[width=0.85\textwidth]{img/sir_diagram.png}
+    \begin{tikzpicture}[auto, node distance=1.5cm and 2cm]
+      \tikzset{circnode/.style = {circle, draw, text centered}}
+      \tikzset{arrow/.style = {thick,->,>={Latex}}}
+
+      \node[circnode] (S) {S};
+      \node[circnode] (I) [right=of S] {I};
+      \node[circnode] (R) [right=of I] {R};
+      \draw[arrow] (S) -- node [centered] {$\beta\frac{SI}{N}$} (I);
+      \draw[arrow] (I) -- node [centered] {$\alpha I$} (R);
+    \end{tikzpicture}
   }
   \only<2>{
     \begin{equation*}
@@ -278,7 +304,7 @@
   Bayesian Analogue
 
   \begin{equation*}
-    p(\theta, x_0 | y) = \underbrace{\exp\left(-\frac{1}{2}\left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right) \right\rVert^2_{\Gamma^{-1}}\right)}_{\text{likelihood: } \cdot p(y|\theta, x_0)} \;\cdot \;p(\theta, x_0)
+    p(\theta, x_0 | y) = \underbrace{\exp\left(-\frac{1}{2}\left\lVert y - g\left(\int_0^{t} f(x(t);\theta)\right) \right\rVert^2_{\Gamma^{-1}}\right)}_{\text{likelihood: } p(y|\theta, x_0)} \;\cdot \;p(\theta, x_0)
   \end{equation*}
 
 \end{frame}
@@ -348,7 +374,7 @@
  }
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Problems}
   
   \begin{enumerate}
@@ -374,9 +400,7 @@
   \textcite{ramsay2007} introduce \textit{generalised profiling} to bridge these gaps.
 
   Core idea: Use the ODE to additionally inform the spline smoothing process.
-
   \pause
-
   \begin{equation*}\begin{gathered}
     \hat{\theta} = \argmin_\theta \left\{ \lVert y - \Phi \hat{c}(\theta) \rVert^2 \right\}\\
     \hat{c}(\theta) = \argmin_c \left\{ \lVert y - \Phi c \rVert^2 + \lambda \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2 \right\}
@@ -390,7 +414,6 @@
   \frametitle{A Likelihood-based Interpretation}
 
   We can instead derive the loss function by writing out the likelihood, assuming that the underlying ODE is actually represented as an SDE (stochastic differential equation):
-
   \begin{equation*}
     \begin{aligned}
       y \sim& g(x) + \overbrace{\mathcal{N}(0, \Gamma)}^{\varepsilon}\\
@@ -401,7 +424,6 @@
 
   \only<2>{
   which after some manipulation will lead to 
-
   \begin{equation*}
     -2\log\mathcal{L}(c, \theta | y) = \left\{ \lVert y - \Phi c \rVert^2_{\Gamma^{-1}} + \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2_{(\Sigma \Delta t)^{-1}} \right\}
   \end{equation*}
@@ -409,7 +431,6 @@
 
   \only<3>{
   and yields the maximum likelihood estimates $\hat{\theta}, \hat{c}$
-
   \begin{equation*}
     \hat{\theta}, \hat{c} = \argmin_{\theta, c} \left\{ \lVert y - \Phi c \rVert^2_{\Gamma^{-1}} + \left\lVert \frac{d}{dt}\Phi c - f(\Phi c; \theta)  \right\rVert^2_{(\Sigma \Delta t)^{-1}} \right\}
   \end{equation*}
@@ -421,13 +442,36 @@
   \frametitle{A Likelihood-based Interpretation}
   Why is this useful?
 
-  \begin{enumerate}
+  \begin{enumerate}[<+->]
     \setlength{\itemsep}{2ex}
     \item Placing it in this framework gives an interpretation of the method: the underlying mechanistic model is an SDE.
     \item We can naturally employ likelihood-based techniques to perform uncertainty quantification with respect to both the model parameters $\theta$, and the underlying state $x = \Phi c$.
     \item In theory*, we get the hyperparameter $\lambda$ ``for free'', since we can estimate the covariances $\Gamma, \Sigma$. 
   \end{enumerate}
 
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Uncertainty Quantification}
+
+  \only<1>{
+    Profile Likelihood
+    \begin{equation*}
+      \mathcal{L}_{\Omega}(\omega) = \argmax_{\theta, c} \mathcal{L}(c, \theta | y) \Big|_{\Omega=\omega}
+    \end{equation*}
+
+    \centering
+    \includegraphics[height=0.7\textheight]{img/profiling_projection.pdf}
+  }
+  \only<2>{
+    Bootstrapping
+
+    Resample the data by generating realisations of the errors ($\varepsilon, \nu$)
+
+    \centering
+    \includegraphics[height=0.7\textheight]{img/rml_bootstrap_example.pdf}
+  }
+  
 \end{frame}
 
 \begin{frame}
@@ -442,6 +486,15 @@
   {\begin{center}
   \includegraphics[width=0.4\textwidth]{img/casadi}\end{center}}
   
+\end{frame}
+
+\begin{frame}
+  \frametitle{Implementation}
+  Some of this is abstracted in \href{https://github.com/dwu402/pypei}{\texttt{pypei}}, an unfinished package that is biased heavily for the upcoming case study.
+
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{img/pypei_listing.pdf}
+  \end{center}
 \end{frame}
 
 \begin{frame}
@@ -478,26 +531,57 @@
 
 \end{frame}
 
-% \begin{frame}
-%   \frametitle{Fitting ODEs: Measles in Samoa}
-%   \centering
-%   \includegraphics[height=0.85\textheight]{exam_resource/seirh.png}
-% \end{frame}
+\begin{frame}
+  \frametitle{Fitting ODEs: Measles in Samoa}
+  \centering
+  % \includegraphics[height=0.85\textheight]{exam_resource/seirh.png}
+  \begin{tikzpicture}[auto, node distance=1cm and 1.75cm]
+    \tikzset{circnode/.style = {circle, draw, text centered}}
+    \tikzset{arrow/.style = {thick,->,>={Latex}}}
 
-% \begin{frame}
-%   \frametitle{Fitting ODEs: Measles in Samoa}
-%   \centering
-%   Maximum Likelihood Estimates
+    \node[circnode,fill=red!20] (S) {$S$};
+    \node[circnode,fill=red!20] (E) [right=of S] {$E$};
+    \node[circnode,fill=red!20] (I) [right=of E] {$I$};
+    \node[circnode,fill=red!20] (R) [right=of I] {$R$};
+    \node[circnode,fill=green!40] (IC) [below=of I] {$I_C$};
+    \node[circnode,fill=green!40] (H) [above=of R] {$H$};
+    \node[circnode,fill=green!40] (HC) [above=of H] {$H_C$};
+    \node[circnode,fill=green!40] (G) [right=of H] {$G$};
+    \node[circnode,fill=green!40] (D) [below right=of R] {$D$};
 
-%   \includegraphics[width=0.45\textwidth]{img/37_samoa/big_state.pdf}
-%   \includegraphics[width=0.45\textwidth]{img/37_samoa/smol_state.pdf}
-% \end{frame}
+    \draw[arrow] (S) -- node [centered] {$\beta\frac{SI}{N}$} (E);
+    \draw[arrow] (E) -- node [centered] {$\gamma E$} (I);
+    \draw[arrow] (I) -- node [centered] {$\alpha I$} (R);
+    \draw[arrow] (I) -- node [centered] {$\eta I$} (H);
+    \draw[arrow] (H) -- node [centered] {$\delta H$} (G);
+    \draw[arrow] (H) -- node [centered] {$\mu H$} (D);
 
-% \begin{frame}
-%   \frametitle{Fitting ODEs: Measles in Samoa}
-%   \centering
-%   \includegraphics[height=0.85\textheight]{img/37_samoa/bivariate_profile.pdf}
-% \end{frame}
+    \draw[arrow,dashed] (E) -- node [centered] {$\gamma E$} (IC);
+    \draw[arrow,dashed] (I) to [bend left=35] node [centered] {$\eta I$} (HC);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Fitting ODEs: Measles in Samoa}
+  \centering
+  Maximum Likelihood Estimates
+
+  \includegraphics[width=0.45\textwidth]{img/big_state.pdf}
+  \includegraphics[width=0.45\textwidth]{img/smol_state.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Fitting ODEs: Measles in Samoa}
+  \centering
+  \includegraphics[height=0.85\textheight]{img/total_cases_profile_rml.pdf}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Fitting ODEs: Measles in Samoa}
+  \centering
+  \includegraphics[height=0.85\textheight]{img/bivariate_profile.pdf}
+\end{frame}
 
 \section{Network Models}\label{network-sim}
 
@@ -515,17 +599,27 @@
 %     Count of active cases, recovered individuals and deceased individuals due to COVID-19 in NZ (Source: Stats NZ)}
 % \end{frame}
 
-\begin{frame}
-  \frametitle{COVID was a thing that happened}
 
-
-\end{frame}
-
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Network Models: Objectives and Context}
   
+  So the COVID-19 pandemic happened.
+  \only<1>{
+    \begin{center}
+      \includegraphics[height=0.6\textheight]{img/dankhot.jpg}
 
+      {\tiny stolen from \url{https://www.reddit.com/r/CoronavirusMemes/comments/fk6jgi/this_is_fine_toilet_paper_edition/}}
+    \end{center}
+  }
 
+  \pause
+  The New Zealand government wanted scenario modelling.
+  
+  \pause
+  It got into someone's head that modelling the population to account for demographic factors and patterns of contact was a good idea.
+
+  \pause
+  They could build a reasonable network that represented the population of NZ, but how do you simulate disease spreading on such a large network?
 \end{frame}
 
 \begin{frame}
@@ -558,7 +652,7 @@
 
   \begin{enumerate}
     \item Compute the total propensity $\Lambda$ for a reaction to occur
-    \item Draw the time to the next event $\sim \Exp(\Lambda)$
+    \item Draw the time to the next event $\sim \Exp(\Lambda)$, and update the current time.
     \item Draw the event $i$ that fires, where the probability of drawing that event is $\lambda_i / \Lambda$
     \item Change the state according to the drawn event
     \item Update all $\lambda_i$ for all events that need to have their rates updated
@@ -583,22 +677,23 @@
 \end{frame}
 
 \begin{frame}[t]
-  \frametitle{Network Models: Methods}
+  \frametitle{Network Models: Methods}%
   Example: Updating rates%
 
-  \only<1-2>{Typical Implementation}
+  \only<1-2>{Typical Implementation}%
   \only<3->{Instead}%
 
   \begin{center}%
-%     \includegraphics<1>[height=0.7\textheight]{exam_resource/rej/inf2sus_1}%
-%     \includegraphics<2>[height=0.7\textheight]{exam_resource/rej/inf2sus_2}%
-%     \includegraphics<3>[height=0.7\textheight]{exam_resource/rej/rej_1}%
-%     \includegraphics<4>[height=0.7\textheight]{exam_resource/rej/rej_2}%
+    \includegraphics<1>[height=0.5\textheight]{img/rej/inf2sus_1}%
+    \includegraphics<2>[height=0.5\textheight]{img/rej/inf2sus_2}%
+    \includegraphics<3>[height=0.5\textheight]{img/rej/rej_1}%
+    \includegraphics<4>[height=0.5\textheight]{img/rej/rej_2}%
 
-    \vspace{-1em}
-    \only<2>{All nodes must update rates}%
+    \vspace{-1em}%
+    \only<1>{Individual becomes infected}%
+    \only<2>{All neighbours must update rates}%
     \only<3>{Only the infected updates}%
-    \only<4>{Upon an infection event firing, randomly sample and perform acceptance check}%
+    \only<4>{Infection event: randomly sample a neighbour and perform acceptance check}%
   \end{center}%
 
 \end{frame}
@@ -607,8 +702,31 @@
   \frametitle{Network Models: Methods}
   Probability of firing vs. Time to firing
 
+  We observed that individuals that entered critical care for COVID-19 typically had one fo two outcomes:
+  \begin{enumerate}
+    \item (more likely) They died after a \emph{long} period of care
+    \item (less likely) They recovered after a \emph{short} period of care
+  \end{enumerate}
 
+  \pause
+  With two competing Markovian processes, you can either capture the distribution of outcomes (die/recover) or the correct time to event (time to die/time to recover), \emph{but not both}.
 
+  \pause
+  This is solved by pre-determining the final outcome, assigning propensities that woudl generate the correct time to event, and then only accepting the pre-determined outcome.
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Network Models: Methods}
+  Delayed effects and the next-event method
+
+  We can have events that fire as a Markovian process, but have their effects occur at some later time -- which doesn't need to be exponentially distributed.
+
+  For example, an individual getting a test could be modelled as Markovian, but them becoming confirmed as positive will happen after some delay.
+
+  \pause
+  We can implement this by caching delayed effects in a priority queue, and triggering them if they occur before the next random event.
+
+  Caveat: the delayed effects must be independent of the state of the system.
 \end{frame}
 
 \begin{frame}[t]
@@ -616,27 +734,50 @@
   Non-Markovian inter-event times
 
   \centering
+  \only<1>{
+    \includegraphics[height=0.8\textheight]{img/gamma_pdf.pdf}
+  }
+  \only<2>{
   \includegraphics[height=0.8\textheight]{img/gamma_bounded.png}
+  }
 \end{frame}
 
-% \begin{frame}
-%   \frametitle{Network Models: Results}
-%   November 2020 unknown case analysis
+\begin{frame}
+  \frametitle{Putting it Together}
+  
+  \centering
+  \begin{enumerate}
+    \item Compute the total propensity $\Lambda$ for a reaction to occur.
+    \item Draw the time of the next event $t_n \sim \Exp(\Lambda)$.
+    \item \textbf{If there is a queued event that occurs before $t_n$, resolve that event, then skip to Step 8.}
+    \item \textbf{Update the time to $t_n$.}
+    \item Draw the event $i$ that fires, where the probability of drawing that event is $\lambda_i / \Lambda$.
+    \item \textbf{With probability $\lambda_i(t) / \lambda_i$, reject the event and skip to Step 1.}
+    \item Change the state according to the drawn event, \textbf{and schedule any delayed events.}
+    \item Update all $\lambda_i$ for all events that need to have their rates updated.
+    \item If we have reached the end of the simulation, exit; otherwise, return to Step 1.
 
-%   \centering
-%   \includegraphics[height=0.7\textheight]{exam_resource/nov_2020_outbreak.png}
-% \end{frame}
+  \end{enumerate}
+\end{frame}
 
-% \begin{frame}
-%   \frametitle{Network Models: Results}
-%   End of August 2021 (Delta) outbreak: AL4 (left) vs AL3 (right)
+\begin{frame}
+  \frametitle{Network Models: Results}
+  November 2020 unknown case analysis
 
-%   \centering
-%   \includegraphics[width=0.475\textwidth]{img/40_covid/results/gp_condition/9_sept_al4.png}
-%   \includegraphics[width=0.475\textwidth]{img/40_covid/results/gp_condition/9_sept_al3pess.png}
+  \centering
+  \includegraphics[height=0.7\textheight]{img/nov_2020_outbreak.png}
+\end{frame}
 
-%   \hfill{\small *uncertainty quantification done by others in the Network Contagion Team}
-% \end{frame}
+\begin{frame}
+  \frametitle{Network Models: Results}
+  End of August 2021 (Delta) outbreak: AL4 (left) vs AL3 (right)
+
+  \centering
+  \includegraphics[width=0.475\textwidth]{img/9_sept_al4.png}
+  \includegraphics[width=0.475\textwidth]{img/9_sept_al3pess.png}
+
+  \hfill{\scriptsize *uncertainty quantification done by others in the Network Contagion Team}
+\end{frame}
 
 \section{Surrogate Models for Inference}\label{surrogates}
 
@@ -654,7 +795,7 @@
 
   $\zeta(\theta, \eta) \approx s(\theta) + e(\theta, \eta)$
 
-  $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Sigma(\theta, \eta))$
+  $e(\theta, \eta) \sim \mathcal{N} (\mu(\theta, \eta), \Gamma(\theta, \eta))$
 
   To estimate $e$:
   \begin{enumerate}
@@ -665,7 +806,7 @@
   \item Take statistics of $E$: 
   \begin{itemize}
     \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
-    \item $\Sigma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
+    \item $\Gamma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
   \end{itemize}
   \end{enumerate}
 \end{frame}
@@ -704,32 +845,34 @@
 %   \includegraphics[height=0.85\textheight]{img/50_surrogate/surrogate_r0rec_profile}
 % \end{frame}
 
-% \section{Summary}
+\section{Summary}
 
-% \begin{frame}
-%   \frametitle{Summary}
-%   \begin{enumerate}
-%     \item \hyperlink{fitting-ode}{Fitting ODE models with generalised profiling}
-%     \item \hyperlink{network-sim}{Simulating stochastic models on networks}
-%     \item \hyperlink{surrogates}{Surrogate modelling techniques for inference}
-%   \end{enumerate}
-% \end{frame}
 
-% \begin{frame}{Thanks}
-%   \begin{columns}
-%     \begin{column}{0.45\textwidth}
-%       \includegraphics[width=\textwidth]{exam_resource/Screenshot from 2023-04-12 16-14-37.png}
-%     \end{column}
-%     \begin{column}{0.45\textwidth}
-%       \includegraphics[width=\textwidth]{exam_resource/XbYFITdo.jpeg}
-%     \end{column}
-    
-%   \end{columns}
+\begin{frame}
+  \frametitle{Summary}
+  \begin{enumerate}
+    \item \hyperlink{fitting-ode}{Fitting ODE models with generalised profiling}
+    \item \hyperlink{network-sim}{Simulating stochastic models on networks}
+    \item \hyperlink{surrogates}{Surrogate modelling techniques for inference}
+  \end{enumerate}
+\end{frame}
 
-% \end{frame}
+\begin{frame}{Thanks}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{img/samoa_crew.png}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{img/XbYFITdo.jpeg}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 \begin{frame}[standout]
   \centering
+  Thank you.
+
+  Questions?
 \end{frame}
 % 
 \end{document}
