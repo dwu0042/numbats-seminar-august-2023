@@ -1,0 +1,17 @@
+\documentclass{standalone}
+
+\usepackage{minted}
+
+\begin{document}
+\begin{minipage}{\textwidth}
+\begin{minted}{python}
+import pypei as pe
+
+spline_model = pe.Model(...)
+objective = pe.Objective(... , spline_model)
+solver = pe.Solver(... , objective)
+
+solver.solve() # computes MLE
+\end{minted}
+\end{minipage}
+\end{document}
