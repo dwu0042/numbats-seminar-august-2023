@@ -9,6 +9,7 @@ pres-*.svg
 *.fdb_latexmk
 *.fls
 *.log
+*.log.*
 *.nav
 *.out
 *.run.xml
