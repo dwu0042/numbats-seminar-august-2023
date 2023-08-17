@@ -114,6 +114,10 @@
 
 % \metroset{numbering=none}
 
+\newcommand{\mean}[1]{\langle#1\rangle}
+\newcommand{\meanlr}[1]{\left\langle#1\right\rangle}
+
+
 \usetikzlibrary{tikzmark}
 
 \newcounter{tmp}
@@ -825,16 +829,16 @@
 
   To estimate this discrepancy approximator $e$:
   \begin{enumerate}
-  \item Sample realisations of the complex model%$\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
-  \item Compute the exact discrepancies 
+  \item Sample realisations of the complex model $\zeta$%$\zeta$: $Z = \{\zeta(\theta_1, \eta_1), \zeta(\theta_2, \eta_2), \dots\}$
+  \item Compute the exact discrepancies $\zeta - s$
   % \item Compute $E = \{\zeta(\theta_1, \eta_1) - s(\theta_1), \dots\}$
 
   \item Take statistics of those discrepancies: 
   \begin{itemize}
     % \item $\mu(\theta, \eta) = \frac{1}{|E|}\sum_{e_i \in E} e_i$
-    \item mean
+    \item mean $\to \mu$
     % \item $\Gamma(\theta, \eta) = \frac{1}{|E|^2}\left< e_i - \mu , e_i - \mu\right>$
-    \item covariance
+    \item covariance $\to \Gamma$
   \end{itemize}
   \end{enumerate}
 \end{frame}
@@ -849,6 +853,25 @@
 
 \begin{frame}
   \frametitle{Surrogate Modelling: Proof of Concept}
+  We can derive a relation between the initial conditions, the final size of the epidemic and $\mathcal{R}_0$ from the ODE.
+
+  \begin{equation*}
+    {\mathcal{R}_0}_{,S_\infty}(S_\infty) = \frac{\log(S_0) - \log(S_\infty)}{\left(1 - \frac{S_\infty}{N}\right)}
+  \end{equation*}
+
+  \pause
+  We can also derive some network-based approximations of $\mathcal{R}_0$
+  
+  \begin{equation*}
+    \begin{aligned}
+      {\mathcal{R}_0}_{,\text{conf}}(k, \widetilde{\mathcal{R}}_0) &= \frac{\mean{k^2-k}}{\mean{k}} \overbrace{\frac{\widetilde{\mathcal{R}}_0}{\widetilde{\mathcal{R}}_0 + k}}^{T}+ \mathcal{O}\left({T^2}\right)\\
+      {\mathcal{R}_0}_{,\text{cluster}}(k, \widetilde{\mathcal{R}}_0) &= \frac{\mean{k^2-k}}{\mean{k}}T - \frac{2\mean{n_\triangle}}{\mean{k}} T^2 - \frac{\mean{n_\square}}{\mean{k}} T^3 + \mathcal{O}\left({T^4}\right).
+    \end{aligned}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Surrogate Modelling: Proof of Concept}
 
   The Curve Registration Problem
 
@@ -859,19 +882,19 @@
   \includegraphics<2>[height=0.7\textheight]{img/shifted_surr_ode}
 \end{frame}
 
-% \begin{frame}
-%   \frametitle{Surrogate Modelling: Proof of Concept}
-%   A rough linear relationship on log-log between transmission parameter and $\tau$
+\begin{frame}
+  \frametitle{Surrogate Modelling: Proof of Concept}
+  A rough linear relationship between $\log({\tau})$ and ${\mathcal{R}_0}_{S_\infty}$
 
-%   \centering
-%   \includegraphics[height=0.85\textheight]{img/50_surrogate/linear_linear_relationship_k}
-% \end{frame}
+  \centering
+  \includegraphics[height=0.85\textheight]{img/dt_surr_ode}
+\end{frame}
 
-% \begin{frame}{Surrogate Modelling: Proof of Concept}
+\begin{frame}{Surrogate Modelling: Proof of Concept}
 
-%   \centering
-%   \includegraphics[height=0.85\textheight]{img/50_surrogate/surrogate_r0rec_profile}
-% \end{frame}
+  \centering
+  \includegraphics[height=0.85\textheight]{img/surrogate_r0rec_profile}
+\end{frame}
 
 \begin{frame}
   \frametitle{Takeaway}
